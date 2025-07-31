@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { UserRoutes } from "../modules/user/user.route";
 import { AuthRoutes } from "../modules/auth/auth.route";
+import { ParcelRoutes } from "../modules/parcel/parcel.route";
 import { SenderRoutes } from "../modules/SENDER/sender.routes";
 
 
@@ -20,6 +21,10 @@ const moduleRoutes = [
         path: "/sender",
         route: SenderRoutes
     },
+    {
+        path: "/parcel",
+        route: ParcelRoutes
+    }
     // {
     //     path: "/receiver",
     //     route: ReceiverRoutes

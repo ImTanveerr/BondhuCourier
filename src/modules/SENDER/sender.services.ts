@@ -19,20 +19,6 @@ const createParcel = async (parcelData: IParcel) => {
   return newParcel;
 };
 
-const getMyParcels = async (userId: string | Types.ObjectId) => {
-  // Find parcels where senderId matches userId
-  const parcels = await Parcel.find({ senderId: userId }).sort({ createdAt: -1 });
-  return parcels;
-};
-const getParcelById = async (parcelId: string, userId: string | Types.ObjectId) => {
-  const parcel = await Parcel.findOne({ _id: parcelId, senderId: userId });
-
-  if (!parcel) {
-    throw new Error("Parcel not found or you are not authorized to access this parcel.");
-  }
-
-  return parcel;
-};
 
 
 
@@ -56,7 +42,5 @@ const cancelParcel = async (parcelId: string, userId: string | Types.ObjectId) =
 
 export const SenderServices = {
   createParcel,
-  getMyParcels,
-  getParcelById,
   cancelParcel
 };

@@ -81,61 +81,11 @@ const cancelParcel = catchAsync(async (req: Request, res: Response, next: NextFu
     res.status(httpStatus.BAD_REQUEST).json({ success: false, message: error.message });
   }
 });
-// =============== Get Parcel by ID ===============
 
-const getParcelById = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-  const token = req.cookies?.accessToken;
-  if (!token) {
-    res.status(httpStatus.UNAUTHORIZED).json({ success: false, message: "Unauthorized" });
-    return;
-  }
-
-  const verifiedToken = verifyToken(token, envVars.JWT_ACCESS_SECRET) as { userId: string };
-
-  if (!verifiedToken?.userId) {
-    res.status(httpStatus.UNAUTHORIZED).json({ success: false, message: "Unauthorized" });
-    return;
-  }
-
-  const parcelId = req.params.id;
-
-  try {
-    const parcel = await SenderServices.getParcelById(parcelId, verifiedToken.userId);
-    sendResponse(res, {
-      success: true,
-      statusCode: httpStatus.OK,
-      message: "Parcel fetched successfully",
-      data: parcel,
-    });
-  } catch (error: any) {
-    res.status(httpStatus.NOT_FOUND).json({ success: false, message: error.message });
-  }
-});
-    
-// =============== Get All Parcels for Sender ===============
-const getMyParcels = catchAsync(async (req, res) => {
-  const token = req.cookies?.accessToken;
-  const verifiedToken = verifyToken(token, envVars.JWT_ACCESS_SECRET) as { userId: string };
-
-  if (!verifiedToken?.userId) {
-    return res.status(401).json({ message: "Unauthorized" });
-  }
-
-  const parcels = await SenderServices.getMyParcels(verifiedToken.userId);
-
-   sendResponse(res, {
-    success: true,
-    statusCode: 200,
-    message: "Fetched parcels successfully",
-    data: parcels,
-  });
-});
 
 
 export const SenderControllers = {
     createParcel,
-    cancelParcel,
-    getMyParcels,
-    getParcelById
+    cancelParcel
 }
 
