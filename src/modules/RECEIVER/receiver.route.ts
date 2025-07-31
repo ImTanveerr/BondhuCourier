@@ -1,7 +1,5 @@
 import { Router } from "express";
 import { ReceiverControllers } from "./receiver.controllers";
-import { Role } from "../user/user.interface";
-import { checkAuth } from "../../middlewares/checkAuth";
 
 const router = Router();
 

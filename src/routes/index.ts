@@ -4,6 +4,7 @@ import { AuthRoutes } from "../modules/auth/auth.route";
 import { ParcelRoutes } from "../modules/parcel/parcel.route";
 import { SenderRoutes } from "../modules/SENDER/sender.routes";
 import { ReceiverRoutes } from "../modules/RECEIVER/receiver.route";
+import { AdminRoutes } from "../modules/ADMIN/admin.route";
 
 
 
@@ -30,10 +31,10 @@ const moduleRoutes = [
         path: "/receiver",
         route: ReceiverRoutes
     },
-    // {
-    //     path: "/admin",
-    //     route: AdminRoutes
-    // }
+    {
+        path: "/admin",
+        route: AdminRoutes
+    }
 
     
 ];
