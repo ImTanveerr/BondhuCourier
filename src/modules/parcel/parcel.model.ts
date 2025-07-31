@@ -5,6 +5,7 @@ export enum ParcelStatus {
   IN_TRANSIT = 'IN_TRANSIT',
   DELIVERED = 'DELIVERED',
   CANCELLED = 'CANCELLED',
+  RECEIVED = 'RECEIVED',
 }
 
 export enum ParcelType {

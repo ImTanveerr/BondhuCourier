@@ -15,7 +15,7 @@ export interface IParcel {
   parcelType: "DOCUMENT" | "BOX" | "FRAGILE" | "OTHER";
   description?: string;
 
-  status?: "PENDING" | "IN_TRANSIT" | "DELIVERED" | "CANCELLED"|"REFUNDED"|"RETURNED"|"CONFIRMED";
+  status?: "PENDING" | "IN_TRANSIT" | "DELIVERED" | "CANCELLED"|"REFUNDED"|"RETURNED"|"RECEIVED";
 
   createdAt?: Date;
   updatedAt?: Date;

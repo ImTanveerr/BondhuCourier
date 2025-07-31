@@ -3,6 +3,7 @@ import { UserRoutes } from "../modules/user/user.route";
 import { AuthRoutes } from "../modules/auth/auth.route";
 import { ParcelRoutes } from "../modules/parcel/parcel.route";
 import { SenderRoutes } from "../modules/SENDER/sender.routes";
+import { ReceiverRoutes } from "../modules/RECEIVER/receiver.route";
 
 
 
@@ -24,11 +25,11 @@ const moduleRoutes = [
     {
         path: "/parcel",
         route: ParcelRoutes
-    }
-    // {
-    //     path: "/receiver",
-    //     route: ReceiverRoutes
-    // },
+    },
+    {
+        path: "/receiver",
+        route: ReceiverRoutes
+    },
     // {
     //     path: "/admin",
     //     route: AdminRoutes

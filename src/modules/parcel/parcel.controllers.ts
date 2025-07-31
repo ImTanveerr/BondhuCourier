@@ -41,17 +41,18 @@ const getParcelById = catchAsync(async (req: Request, res: Response, next: NextF
 });
     
 // =============== Get All Parcels for Sender & RECEIVER===============
-const getMyParcels = catchAsync(async (req, res) => {
+const getMyParcels = catchAsync(async  (req: Request, res: Response, next: NextFunction) => {
   const token = req.cookies?.accessToken;
   const verifiedToken = verifyToken(token, envVars.JWT_ACCESS_SECRET) as { userId: string };
 
   if (!verifiedToken?.userId) {
-    return res.status(401).json({ message: "Unauthorized" });
+    res.status(401).json({ message: "Unauthorized" });
+    return;
   }
 
   const parcels = await ParcelServices.getMyParcels(verifiedToken.userId);
 
-   sendResponse(res, {
+  sendResponse(res, {
     success: true,
     statusCode: 200,
     message: "Fetched parcels successfully",
