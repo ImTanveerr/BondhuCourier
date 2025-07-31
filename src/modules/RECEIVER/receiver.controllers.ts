@@ -10,7 +10,7 @@ import { ReceiverServices } from "./receiver.service";
 
 
 
-// =============== Get the incoming parcels===============
+// ========== Get the incoming parcels=========
 
 const IncomingParcels = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
   const token = req.cookies?.accessToken;
@@ -42,9 +42,9 @@ const IncomingParcels = catchAsync(async (req: Request, res: Response, next: Nex
 
 
 
-// =============== Confirm the Delivery ===============
+// ============= Confirm the Delivery ============
 
-const confirmDelivery= catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+const ReceiveParcel= catchAsync(async (req: Request, res: Response, next: NextFunction) => {
   const token = req.cookies?.accessToken;
   if (!token) {
     res.status(httpStatus.UNAUTHORIZED).json({ success: false, message: "Unauthorized" });
@@ -61,7 +61,7 @@ const confirmDelivery= catchAsync(async (req: Request, res: Response, next: Next
   const parcelId = req.params.id;
 
   try {
-    const updatedParcel = await ReceiverServices.confirmDelivery(parcelId, verifiedToken.userId);
+    const updatedParcel = await ReceiverServices.ReceiveParcel(parcelId, verifiedToken.userId);
 
     sendResponse(res, {
       success: true,
@@ -75,6 +75,40 @@ const confirmDelivery= catchAsync(async (req: Request, res: Response, next: Next
 });
 
 
+// ============= Confirm the Delivery ============
+
+const ReturnParcel= catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+  const token = req.cookies?.accessToken;
+  if (!token) {
+    res.status(httpStatus.UNAUTHORIZED).json({ success: false, message: "Unauthorized" });
+    return;
+  }
+
+  const verifiedToken = verifyToken(token, envVars.JWT_ACCESS_SECRET) as { userId: string };
+
+  if (!verifiedToken?.userId) {
+    res.status(httpStatus.UNAUTHORIZED).json({ success: false, message: "Unauthorized" });
+    return;
+  }
+
+  const parcelId = req.params.id;
+
+  try {
+    const updatedParcel = await ReceiverServices.ReturnParcel(parcelId, verifiedToken.userId);
+
+    sendResponse(res, {
+      success: true,
+      statusCode: httpStatus.OK,
+      message: "Delivery confirmed successfully",
+      data: updatedParcel,
+    });
+  } catch (error: any) {
+    res.status(httpStatus.BAD_REQUEST).json({ success: false, message: error.message });
+  }
+});
+
+
+// ========== Get the Delivered parcels=========
 const DeliveredParcels = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
   const token = req.cookies?.accessToken;
 
@@ -106,7 +140,8 @@ const DeliveredParcels = catchAsync(async (req: Request, res: Response, next: Ne
 export const ReceiverControllers = {
    
     IncomingParcels,
-    confirmDelivery,
-    DeliveredParcels
+    ReceiveParcel,
+    DeliveredParcels,
+    ReturnParcel
 }
 

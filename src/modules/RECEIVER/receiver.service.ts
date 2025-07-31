@@ -2,7 +2,7 @@ import { Parcel, ParcelStatus } from "../parcel/parcel.model";
 import { Types } from "mongoose";
 
 
-const confirmDelivery = async (parcelId: string, receiverId: string | Types.ObjectId) => {
+const ReceiveParcel = async (parcelId: string, receiverId: string | Types.ObjectId) => {
   // Find parcel by ID and receiverId
   const parcel = await Parcel.findOne({ _id: parcelId, receiverId });
 
@@ -10,15 +10,42 @@ const confirmDelivery = async (parcelId: string, receiverId: string | Types.Obje
     throw new Error("Parcel not found or you are not authorized to confirm this delivery.");
   }
 
-  if (parcel.status === "RECEIVED") {
-    throw new Error("This parcel is already marked as RECEIVED.");
+  if (parcel.status === ParcelStatus.RECEIVED || parcel.status === ParcelStatus.CANCELLED ) {
+
+    throw new Error(`This parcel is already ${parcel.status}.`);
   }
 
-  if (parcel.status === "CANCELLED" ) {
-    throw new Error("This parcel is already marked as CANCELLED.");
+
+  if (parcel.status !== ParcelStatus.DELIVERED ) {
+    throw new Error("This parcel is not DELIVERED yet");
   }
 
-  parcel.status =  ParcelStatus.RECEIVED;
+  parcel.status = ParcelStatus.RECEIVED;
+  await parcel.save();
+
+  return parcel;
+};
+
+
+
+const ReturnParcel = async (parcelId: string, receiverId: string | Types.ObjectId) => {
+  // Find parcel by ID and receiverId
+  const parcel = await Parcel.findOne({ _id: parcelId, receiverId });
+
+  if (!parcel) {
+    throw new Error("Parcel not found or you are not authorized to confirm this delivery.");
+  }
+
+
+  if (parcel.status === ParcelStatus.RETURNED || parcel.status === ParcelStatus.CANCELLED) {
+    throw new Error(`This parcel is already ${parcel.status}.`);
+  }
+
+  if (parcel.status !== ParcelStatus.DELIVERED && parcel.status !== ParcelStatus.RECEIVED) {
+    throw new Error(`parcel is not in a state to be returned. Current status: ${parcel.status}`);
+  }
+
+  parcel.status = ParcelStatus.RETURNED;
   await parcel.save();
 
   return parcel;
@@ -27,9 +54,15 @@ const confirmDelivery = async (parcelId: string, receiverId: string | Types.Obje
 
 
 const IncomingParcels = async (receiverId: string | Types.ObjectId) => {
-  const parcels = await Parcel.find({ 
-    receiverId, 
-    status: "PENDING" 
+   const excludedStatuses = [
+    ParcelStatus.DELIVERED,
+    ParcelStatus.CANCELLED,
+    ParcelStatus.RECEIVED,
+  ];
+
+  const parcels = await Parcel.find({
+    receiverId,
+    status: { $nin: excludedStatuses }, 
   }).sort({ createdAt: -1 });
 
   return parcels;
@@ -45,5 +78,8 @@ const DeliveredParcels = async (receiverId: string | Types.ObjectId) => {
   return parcels;
 };
 export const ReceiverServices = {
-  confirmDelivery,IncomingParcels,DeliveredParcels
+  ReceiveParcel, 
+  IncomingParcels, 
+  DeliveredParcels, 
+  ReturnParcel
 };

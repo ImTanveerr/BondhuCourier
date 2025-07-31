@@ -4,6 +4,7 @@ import { envVars } from "../../config/env";
 import AppError from "../../errorHelpers/AppError";
 import { IAuthProvider, IUser } from "./user.interface";
 import { User } from "./user.model";
+import { Parcel } from "../parcel/parcel.model";
 
 const createUser = async (payload: Partial<IUser>) => {
     const { email, password, ...rest } = payload;
@@ -31,7 +32,18 @@ const createUser = async (payload: Partial<IUser>) => {
 }
 
 
+const TrackParcel = async (trackingId: string) => {
+  const parcel = await Parcel.findOne({ trackingId }).select("trackingEvents");
+
+  if (!parcel) {
+    throw new AppError(httpStatus.NOT_FOUND, "Parcel with this tracking ID was not found");
+  }
+
+  return parcel.trackingEvents; 
+};
+
 
 export const UserServices = {
-    createUser
+    createUser,
+    TrackParcel
 }

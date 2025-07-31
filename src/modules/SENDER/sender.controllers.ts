@@ -5,12 +5,7 @@ import { catchAsync } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendResponse";
 import { verifyToken } from "../../utils/jwt";
 import { envVars } from "../../config/env";
-import { JwtPayload } from "jsonwebtoken";
-import { Parcel } from "../parcel/parcel.model";
-import { Role } from "../user/user.interface";
-import AppError from "../../errorHelpers/AppError";
 import { SenderServices } from "./sender.services";
-import { UserServices } from "../user/user.service";
 
 
 // =============== Create Parcel ===============

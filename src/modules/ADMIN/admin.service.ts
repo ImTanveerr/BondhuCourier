@@ -5,7 +5,7 @@ import { envVars } from "../../config/env";
 import AppError from "../../errorHelpers/AppError";
 import { IAuthProvider, IUser, Role } from "../user/user.interface";
 import { User } from "../user/user.model";
-import { IParcel, Parcel } from "../parcel/parcel.model";
+import { IParcel, Parcel, ParcelStatus } from "../parcel/parcel.model";
 
 
 
@@ -58,42 +58,101 @@ const getAllUsers = async () => {
 
 
 const getAllParcels = async () => {
-  const parcels = await Parcel.find().populate("senderId receiverId");
-  const total = await Parcel.countDocuments();
+    const parcels = await Parcel.find().populate("senderId receiverId");
+    const total = await Parcel.countDocuments();
 
-  return {
-    data: parcels,
-    meta: {
-      total,
-    },
-  };
+    return {
+        data: parcels,
+        meta: {
+            total,
+        },
+    };
 };
 
 
+
+// const updateParcel = async (
+//   parcelId: string,
+//   payload: Partial<IParcel>,
+//   decodedToken: JwtPayload
+// ) => {
+//   if (decodedToken.role !== Role.ADMIN && decodedToken.role !== Role.SUPER_ADMIN) {
+//     throw new AppError(httpStatus.FORBIDDEN, "Only admins can update parcels");
+//   }
+
+//   const updatedParcel = await Parcel.findByIdAndUpdate(parcelId, payload, {
+//     new: true,
+//     runValidators: true,
+//   });
+
+//   if (!updatedParcel) {
+//     throw new AppError(httpStatus.NOT_FOUND, "Parcel not found");
+//   }
+
+//   return updatedParcel;
+// };
+function generateTrackingId(): string {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const datePart = `${year}${month}${day}`;
+    const randomPart = Math.floor(100000 + Math.random() * 900000); // 6-digit
+    return `TRK-${datePart}-${randomPart}`;
+}
 
 const updateParcel = async (
-  parcelId: string,
-  payload: Partial<IParcel>,
-  decodedToken: JwtPayload
+    parcelId: string,
+    payload: Partial<{ status: ParcelStatus; note?: string; location?: string }>,
+    decodedToken: JwtPayload
 ) => {
-  if (decodedToken.role !== Role.ADMIN && decodedToken.role !== Role.SUPER_ADMIN) {
-    throw new AppError(httpStatus.FORBIDDEN, "Only admins can update parcels");
-  }
+    if (decodedToken.role !== Role.ADMIN && decodedToken.role !== Role.SUPER_ADMIN) {
+        throw new AppError(httpStatus.FORBIDDEN, "Only admins can update parcels");
+    }
 
-  const updatedParcel = await Parcel.findByIdAndUpdate(parcelId, payload, {
-    new: true,
-    runValidators: true,
-  });
+    const parcel = await Parcel.findById(parcelId);
+    if (!parcel) {
+        throw new AppError(httpStatus.NOT_FOUND, "Parcel not found");
+    }
 
-  if (!updatedParcel) {
-    throw new AppError(httpStatus.NOT_FOUND, "Parcel not found");
-  }
+    const updateFields: any = { ...payload };
 
-  return updatedParcel;
+    // ✅ Assign tracking ID and first tracking event if status is APPROVED and no tracking ID yet
+    if (payload.status === ParcelStatus.APPROVED && !parcel.trackingId) {
+        updateFields.trackingId = generateTrackingId();
+        updateFields.trackingEvents = [
+            ...(parcel.trackingEvents || []),
+            {
+                location: payload.location || parcel.pickupAddress,
+                status: ParcelStatus.APPROVED,
+                timestamp: new Date(),
+                note: payload.note || "Parcel approved",
+            },
+        ];
+    }
+
+    // ✅ Add tracking log for any other status update (if tracking already exists)
+    if (payload.status && parcel.trackingId) {
+        await Parcel.findByIdAndUpdate(parcelId, {
+            $push: {
+                trackingEvents: {
+                    location: payload.location || "Unknown",
+                    status: payload.status,
+                    timestamp: new Date(),
+                    note: payload.note || "",
+                },
+            },
+        });
+    }
+
+    // ✅ Update main parcel fields
+    const updatedParcel = await Parcel.findByIdAndUpdate(parcelId, updateFields, {
+        new: true,
+        runValidators: true,
+    });
+
+    return updatedParcel;
 };
-
-
-
 
 
 

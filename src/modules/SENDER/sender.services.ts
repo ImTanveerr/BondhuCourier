@@ -1,21 +1,40 @@
-import bcryptjs from "bcryptjs";
 
-import { IAuthProvider, IUser, Role } from "../user/user.interface";
-import { User } from "../user//user.model";
-import { IParcel, Parcel, ParcelStatus } from "../parcel/parcel.model";
+import { IParcel, Parcel, ParcelStatus, ParcelType } from "../parcel/parcel.model";
 
-import { NextFunction, Request, Response } from "express";
-import httpStatus from "http-status-codes";
 
-import { envVars } from "../../config/env";
-import { JwtPayload } from "jsonwebtoken";
-import AppError from "../../errorHelpers/AppError";
 import { Types } from "mongoose";
 const jwt = require("jsonwebtoken");
 
 
-const createParcel = async (parcelData: IParcel) => {
-  const newParcel = await Parcel.create(parcelData);
+
+const createParcel = async (parcelData: Omit<IParcel, "cost">) => {
+  const { weight, parcelType } = parcelData;
+
+  let cost = 0;
+
+ 
+  switch (parcelType) {
+    case ParcelType.DOCUMENT:
+      cost = 50 + weight * 5;
+      break;
+    case ParcelType.BOX:
+      cost = 100 + weight * 10;
+      break;
+    case ParcelType.FRAGILE:
+      cost = 150 + weight * 15;
+      break;
+    case ParcelType.OTHER:
+    default:
+      cost = 150 + weight * 20;
+      break;
+  }
+
+  
+  const newParcel = await Parcel.create({
+    ...parcelData,
+    cost,
+  });
+
   return newParcel;
 };
 
@@ -30,8 +49,9 @@ const cancelParcel = async (parcelId: string, userId: string | Types.ObjectId) =
     throw new Error("Parcel not found or you are not authorized to cancel this parcel.");
   }
 
-  if (parcel.status === "CANCELLED" || parcel.status === "DELIVERED") {
-    throw new Error("Parcel is already cancelled.");
+  // Check if the parcel is in a cancellable status
+  if (parcel.status !== ParcelStatus.PENDING && parcel.status !== ParcelStatus.APPROVED) {
+    throw new Error("Parcel can only be cancelled if it is in PENDING or APPROVED status.");
   }
 
   parcel.status = ParcelStatus.CANCELLED;
@@ -42,5 +62,6 @@ const cancelParcel = async (parcelId: string, userId: string | Types.ObjectId) =
 
 export const SenderServices = {
   createParcel,
-  cancelParcel
+  cancelParcel,
+  //refundParcel
 };
