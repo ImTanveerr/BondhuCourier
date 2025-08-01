@@ -10,6 +10,7 @@ import passport from "passport";
 import AppError from "../../errorHelpers/AppError";
 import { envVars } from "../../config/env";
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
 const credentialsLogin = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
 
     //const loginInfo = await AuthServices.credentialsLogin(req.body);
@@ -25,7 +26,6 @@ const credentialsLogin = catchAsync(async (req: Request, res: Response, next: Ne
 
         const userTokens = await createUserTokens(user)
 
-       
         const { password: pass, ...rest } = user.toObject()
 
     

@@ -1,5 +1,5 @@
 
-import { NextFunction, Request, Response } from "express";
+import { Request, Response } from "express";
 import httpStatus from "http-status-codes";
 import { catchAsync } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendResponse";
@@ -7,7 +7,7 @@ import { verifyToken } from "../../utils/jwt";
 import { envVars } from "../../config/env";
 import { ReceiverServices } from "./receiver.service";
 
-
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 // ========== Get the incoming parcels=========
 
@@ -76,7 +76,7 @@ const ReceiveParcel= catchAsync(async (req: Request, res: Response) => {
 
 // ============= Confirm the Delivery ============
 
-const ReturnParcel= catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+const ReturnParcel= catchAsync(async (req: Request, res: Response) => {
   const token = req.cookies?.accessToken;
   if (!token) {
     res.status(httpStatus.UNAUTHORIZED).json({ success: false, message: "Unauthorized" });

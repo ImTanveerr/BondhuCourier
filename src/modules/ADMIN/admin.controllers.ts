@@ -1,5 +1,5 @@
 
-import { NextFunction, Request, Response } from "express";
+import {  Request, Response } from "express";
 import httpStatus from "http-status-codes";
 import { catchAsync } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendResponse";
@@ -41,7 +41,7 @@ const getAllUsers = catchAsync(async (req: Request, res: Response) => {
 
 
 const getAllParcels = catchAsync(async (req: Request, res: Response) => {
-  const token = req.headers.authorization?.split(" ")[1];
+ // const token = req.headers.authorization?.split(" ")[1];
 
 
   const result = await AdminServices.getAllParcels();

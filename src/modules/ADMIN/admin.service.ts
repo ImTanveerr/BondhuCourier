@@ -7,7 +7,7 @@ import { IUser, Role } from "../user/user.interface";
 import { User } from "../user/user.model";
 import { Parcel, ParcelStatus } from "../parcel/parcel.model";
 
-
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 const updateUser = async (userId: string, payload: Partial<IUser>, decodedToken: JwtPayload) => {
 

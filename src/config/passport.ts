@@ -6,6 +6,8 @@ import { User } from "../modules/user/user.model";
 import { Role } from "../modules/user/user.interface";
 import bcryptjs from "bcryptjs";
 
+
+/* eslint-disable @typescript-eslint/no-explicit-any */
 passport.use(
     new LocalStrategy({
         usernameField: "email",

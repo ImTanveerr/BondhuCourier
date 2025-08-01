@@ -1,12 +1,12 @@
 
-import { NextFunction, Request, Response } from "express";
+import { Request, Response } from "express";
 import httpStatus from "http-status-codes";
 import { catchAsync } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendResponse";
 import { verifyToken } from "../../utils/jwt";
 import { envVars } from "../../config/env";
 import { SenderServices } from "./sender.services";
-
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 // =============== Create Parcel ===============
 const createParcel = catchAsync(async (req: Request, res: Response) => {

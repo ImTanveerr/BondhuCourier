@@ -6,7 +6,7 @@ import { createNewAccessTokenWithRefreshToken } from "../../utils/userToken";
 import { envVars } from "../../config/env";
 import { JwtPayload } from "jsonwebtoken";
 
-
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 
 
 const getNewAccessToken = async (refreshToken: string) => {
