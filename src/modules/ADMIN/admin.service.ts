@@ -246,17 +246,8 @@ const CancelParcel = async (parcelId: string, decodedToken: JwtPayload) => {
     );
   }
 
-    // Optional: add a cancellation tracking event
-//   parcel.trackingEvents = [
-//     ...(parcel.trackingEvents || []),
-//     {
-//       location: "N/A",
-//       status: ParcelStatus.CANCELLED,
-//       timestamp: new Date(),
-//       note: "Parcel cancelled by admin",
-//     },
-//   ];
-//   parcel.status = ParcelStatus.CANCELLED;
+  
+  parcel.status = ParcelStatus.CANCELLED;
 
 
   const updatedParcel = await parcel.save();
