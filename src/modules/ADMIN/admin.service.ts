@@ -254,6 +254,48 @@ const CancelParcel = async (parcelId: string, decodedToken: JwtPayload) => {
   return updatedParcel;
 };
 
+
+
+const DeleteParcel = async (parcelId: string, decodedToken: JwtPayload) => {
+  // Only ADMIN and SUPER_ADMIN allowed
+  if (decodedToken.role !== Role.ADMIN && decodedToken.role !== Role.SUPER_ADMIN) {
+    throw new AppError(httpStatus.FORBIDDEN, "Only admins can delete parcels");
+  }
+
+  const parcel = await Parcel.findById(parcelId);
+  if (!parcel) {
+    throw new AppError(httpStatus.NOT_FOUND, "Parcel not found");
+  }
+
+  // Actually delete the document
+  await Parcel.findByIdAndDelete(parcelId);
+
+  return null; // or return a confirmation message/object
+};
+
+
+const DeleteUser = async (userId: string, decodedToken: JwtPayload) => {
+  // Only ADMIN and SUPER_ADMIN allowed
+  if (decodedToken.role !== Role.ADMIN && decodedToken.role !== Role.SUPER_ADMIN) {
+    throw new AppError(httpStatus.FORBIDDEN, "Only admins can delete users");
+  }
+
+  const user = await User.findById(userId);
+  if (!user) {
+    throw new AppError(httpStatus.NOT_FOUND, "User not found");
+  }
+
+  // Prevent deleting SUPER_ADMIN by ADMIN
+  if (user.role === Role.SUPER_ADMIN && decodedToken.role === Role.ADMIN) {
+    throw new AppError(httpStatus.FORBIDDEN, "You are not authorized to delete this user");
+  }
+
+  await User.findByIdAndDelete(userId);
+
+  return null;
+};
+
+
 export const AdminServices = {
     getAllUsers,
     updateUser,
@@ -262,5 +304,7 @@ export const AdminServices = {
     BlockUser,
     UnBlockUser,
     ApproveParcel,
-    CancelParcel
+    CancelParcel,
+    DeleteParcel,
+    DeleteUser
 }

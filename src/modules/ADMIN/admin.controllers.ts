@@ -137,6 +137,37 @@ const CancelParcel = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const DeleteParcel = catchAsync(async (req: Request, res: Response) => {
+  const parcelId = req.params.id;
+
+  const token = req.headers.authorization;
+  const verifiedToken = verifyToken(token as string, envVars.JWT_ACCESS_SECRET) as JwtPayload;
+
+  await AdminServices.DeleteParcel(parcelId, verifiedToken);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Parcel deleted successfully",
+    data: null,
+  });
+});
+
+const DeleteUser = catchAsync(async (req: Request, res: Response) => {
+  const userId = req.params.id;
+
+  const token = req.headers.authorization;
+  const verifiedToken =  verifyToken(token as string, envVars.JWT_ACCESS_SECRET) as JwtPayload;
+
+  await AdminServices.DeleteUser(userId, verifiedToken);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "User deleted successfully",
+    data: null
+  });
+});
 
 
 export const AdminControllers = {
@@ -147,6 +178,8 @@ export const AdminControllers = {
     BlockUser,
     UnBlockUser,
     ApproveParcel,
-    CancelParcel
+    CancelParcel,
+    DeleteParcel,
+    DeleteUser
 }
 

@@ -13,6 +13,9 @@ router.get("/all-parcels", checkAuth(Role.ADMIN, Role.SUPER_ADMIN), AdminControl
 router.patch("/update-user/:id", validateRequest(updateUserZodSchema), checkAuth(...Object.values(Role)), AdminControllers.updateUser)
 router.patch("/parcel/:id", AdminControllers.updateParcel)
 
+router.delete("/delete-parcel/:id", AdminControllers.DeleteParcel)
+router.delete("/delete-user/:id",  AdminControllers.DeleteUser)
+
 
 router.post("/approve-parcel/:id", AdminControllers.ApproveParcel)
 router.post("/cancel-parcel/:id", AdminControllers.CancelParcel)
