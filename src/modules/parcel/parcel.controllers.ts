@@ -41,7 +41,9 @@ const getParcelById = catchAsync(async (req: Request, res: Response, next: NextF
 });
     
 // =============== Get All Parcels for Sender & RECEIVER===============
-const getMyParcels = catchAsync(async  (req: Request, res: Response, next: NextFunction) => {
+const getAllParcels = catchAsync(async (req: Request, res: Response) => {
+
+
   const token = req.cookies?.accessToken;
   const verifiedToken = verifyToken(token, envVars.JWT_ACCESS_SECRET) as { userId: string };
 
@@ -49,21 +51,22 @@ const getMyParcels = catchAsync(async  (req: Request, res: Response, next: NextF
     res.status(401).json({ message: "Unauthorized" });
     return;
   }
+  
 
-  const parcels = await ParcelServices.getMyParcels(verifiedToken.userId);
-
-  sendResponse(res, {
-    success: true,
-    statusCode: 200,
-    message: "Fetched parcels successfully",
-    data: parcels,
-  });
+    const result = await ParcelServices.getMyParcels(req.query);
+        sendResponse(res, {
+        statusCode: 200,
+        success: true,
+        message: 'Parcel retrieved successfully',
+        data: result.data,
+        meta: result.meta,
+    });
 });
 
 
 export const ParcelControllers = {
    
-    getMyParcels,
+    getAllParcels,
     getParcelById
 }
 

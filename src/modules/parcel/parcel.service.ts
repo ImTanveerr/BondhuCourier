@@ -1,17 +1,37 @@
 
+import { QueryBuilder } from "../../utils/QueryBuilder";
 import { IParcel, Parcel, ParcelStatus } from "../parcel/parcel.model";
 
 import { Types } from "mongoose";
+import { parcelSearchableFields } from "./parcel.constant";
 const jwt = require("jsonwebtoken");
 
 
 
-const getMyParcels = async (userId: string | Types.ObjectId) => {
-  const parcels = await Parcel.find({
-    $or: [{ senderId: userId }, { receiverId: userId }],
-  }).sort({ createdAt: -1 });
+const getMyParcels = async (filters: Record<string, any>) => {
 
-  return parcels;
+
+
+  const builder = new QueryBuilder(Parcel.find({
+    $or: [
+      { senderId: filters.userId },
+      { receiverId: filters.userId },
+    ],
+  }), filters);
+
+  const resultQuery = builder
+    .search(parcelSearchableFields)
+    .filter()
+    .sort()
+    .fields()
+    .paginate();
+
+  const [data, meta] = await Promise.all([
+    resultQuery.build(),
+    builder.getMeta(),
+  ]);
+
+  return { data, meta };
 };
 
 

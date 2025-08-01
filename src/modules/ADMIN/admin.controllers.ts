@@ -43,16 +43,6 @@ const getAllUsers = catchAsync(async (req: Request, res: Response, next: NextFun
 
 const getAllParcels = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
   const token = req.headers.authorization?.split(" ")[1];
-//   if (!token) {
-//     res.status(httpStatus.UNAUTHORIZED).json({ message: "Unauthorized" });
-//     return;
-//   }
-
-//   const verifiedToken = verifyToken(token, envVars.JWT_ACCESS_SECRET) as JwtPayload;
-//   if (verifiedToken.role !== Role.ADMIN && verifiedToken.role !== Role.SUPER_ADMIN) {
-//     res.status(httpStatus.FORBIDDEN).json({ message: "Only admins can view all parcels" });
-//     return;
-//   }
 
   const result = await AdminServices.getAllParcels();
 
