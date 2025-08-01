@@ -158,32 +158,30 @@ GET http://localhost:5000/api/v1/parcel/get-parcels?searchTerm=box
 
 ---
 
-## 📦 Tracking & Status History
+### 👥 Sender & Receiver Access
 
-- **Unique Tracking ID**: `TRK-YYYYMMDD-xxxxxx`
-- **Status history** viewable by:
-  - Sender (all parcels)
-  - Receiver (incoming)
-  - Admin (all parcels)
-- **Location-based tracking** optional (status logs include location field)
+Both **Senders** and **Receivers** can access all parcels **associated with them**, including:
+
+- Parcels **created by the sender**
+- Parcels **assigned to the receiver**
+- Full **status logs** and **tracking history** for their parcels
+- Ability to **search, filter, sort, and paginate** their parcel list
 
 ---
 
 ## 💼 Business Logic Rules
 
 - 🚫 Dispatched parcels can't be canceled
-- ✅ Receivers can confirm delivery
-- 🔐 Blocked users lose all access
-- ✅ All status changes logged with user and timestamp
-- ⚠️ Status transitions are validated (no skipping)
+- ✅ Receivers can confirm delivery after parcel delivered
+- 🔐 Blocked users can't login
+- ⚠️ Banned senders cannot create new parcel requests
 
 ---
 
-## 💡 Bonus Features (Optional)
+## 💡 Extra Features (Optional)
 
-- 📍 Tracking system with public tracking ID (future scope)
-- 📊 Fee calculation based on weight (flat rate in current build)
-- 🎁 Coupons or discounts (optional for future release)
+- 📍 Tracking system with public tracking ID 
+- 📊 Fee calculation based on weight and type
 - 🧑‍💼 Admin dashboard (API-ready)
 
 ---
