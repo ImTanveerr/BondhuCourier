@@ -28,9 +28,9 @@ This API allows:
 
 
 
-## 🔐 Authentication & Authorization
+## 🔐 entication & orization
 
-- **JWT-based** authentication system
+- **JWT-based** entication system
 - **Password hashing** using bcrypt
 - Three user roles:
   - `admin`
@@ -74,16 +74,17 @@ This API allows:
 ### Auth Routes
 | Method | Endpoint           | Description            |
 |--------|--------------------|------------------------|
-| POST   | `/auth/register`   | Register as a user     |
 | POST   | `/auth/login`      | Login and receive JWT  |
+| POST   | `/auth/logout`      | Logout and remove JWT  |
+| POST   | `/auth/reset-password`  | change own password |
+
 
 ### Sender Routes
 | Method | Endpoint                 | Description                     |
 |--------|--------------------------|---------------------------------|
-| POST   | `/parcels`               | Create a new parcel             |
-| PATCH  | `/parcels/cancel/:id`    | Cancel parcel before dispatch   |
-| GET    | `/parcels/me`            | Get sender's parcels            |
-| GET    | `/parcels/:id/status-log`| Get full status history         |
+| POST   | `/sender/create-parcel`  | Create a new parcel             |
+| POST   | `/sender/cancel/:id`     | Cancel parcel before dispatch   |
+
 
 ### Receiver Routes
 | Method | Endpoint                | Description                     |
@@ -91,6 +92,40 @@ This API allows:
 | GET    | `/parcels/incoming`     | List incoming parcels           |
 | PATCH  | `/parcels/receive/:id`  | Confirm parcel delivery         |
 | GET    | `/parcels/history`      | Get delivery history            |
+
+
+### 📦 Parcel Routes (Accessible by Sender and Receiver)
+
+The following endpoints allow senders and receivers to view and filter their parcels.
+
+| Method | Endpoint                              | Description                                         |
+|--------|---------------------------------------|-----------------------------------------------------|
+| GET    | `/parcel/get-parcels`                 | Retrieve all parcels related to the user            |
+| GET    | `/parcel/get-parcels/:id`             | Get details of a specific parcel by its ID          |
+| GET    | `/parcel/get-parcels?searchTerm=`     | Search parcels by Searchable Fields                 |
+| GET    | `/parcel/get-parcels?sort=`           | Sort parcels by fields (e.g., date, weight, status) |
+| GET    | `/parcel/get-parcels?fields=`         | Select specific fields to display in the response   |
+| GET    | `/parcel/get-parcels?page=`           | Paginate results by specifying the page number      |
+| GET    | `/parcel/get-parcels?limit=`          | Limit the number of results per page                |
+
+
+### 🔍 Searchable Fields
+
+The following fields can be used with the `searchTerm` query parameter in `/parcel/get-parcels`:
+
+- `description`
+- `parcelType`
+- `pickupAddress`
+- `deliveryAddress`
+
+**Example:**
+```http
+GET http://localhost:5000/api/v1/parcel/get-parcels?page=1&limit=2
+GET http://localhost:5000/api/v1/parcel/get-parcels?fields=description
+GET http://localhost:5000/api/v1/parcel/get-parcels?sort=pickupAddress
+GET http://localhost:5000/api/v1/parcel/get-parcels?searchTerm=box
+
+
 
 ### Admin Routes
 | Method | Endpoint                 | Description                    |
