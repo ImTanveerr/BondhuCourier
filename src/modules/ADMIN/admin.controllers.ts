@@ -11,10 +11,9 @@ import { AdminServices } from "./admin.service";
 // Update user function
 const updateUser = catchAsync(async (req: Request, res: Response) => {
     const userId = req.params.id;
-    const token = req.headers.authorization
-    const verifiedToken = verifyToken(token as string, envVars.JWT_ACCESS_SECRET) as unknown as JwtPayload
+   
     const payload = req.body;
-    const user = await AdminServices.updateUser(userId, payload, verifiedToken)
+    const user = await AdminServices.updateUser(userId, payload)
 
     sendResponse(res, {
         success: true,
@@ -29,9 +28,8 @@ const updateUser = catchAsync(async (req: Request, res: Response) => {
 // Block user function
 const BlockUser = catchAsync(async (req: Request, res: Response) => {
     const userId = req.params.id;
-    const token = req.headers.authorization
-    const verifiedToken = verifyToken(token as string, envVars.JWT_ACCESS_SECRET) as unknown as JwtPayload
-    const user = await AdminServices.BlockUser(userId, verifiedToken)
+
+    const user = await AdminServices.BlockUser(userId)
 
     sendResponse(res, {
         success: true,
@@ -43,14 +41,12 @@ const BlockUser = catchAsync(async (req: Request, res: Response) => {
 // UnBlock user function
 const UnBlockUser = catchAsync(async (req: Request, res: Response) => {
     const userId = req.params.id;
-    const token = req.headers.authorization
-    const verifiedToken = verifyToken(token as string, envVars.JWT_ACCESS_SECRET) as unknown as JwtPayload
-    const user = await AdminServices.UnBlockUser(userId, verifiedToken)
+    const user = await AdminServices.UnBlockUser(userId)
 
     sendResponse(res, {
         success: true,
         statusCode: httpStatus.OK,
-        message: "User blocked successfully.",
+        message: "User is active again.",
         data: user,
     });
 });
@@ -89,11 +85,10 @@ const getAllParcels = catchAsync(async (req: Request, res: Response) => {
 const updateParcel = catchAsync(async (req: Request, res: Response) => {
   const parcelId = req.params.id;
   
-   const token = req.headers.authorization
-    const verifiedToken = verifyToken(token as string, envVars.JWT_ACCESS_SECRET) as unknown as JwtPayload
+   
     const payload = req.body;
 
-  const parcel = await AdminServices.updateParcel(parcelId, payload, verifiedToken);
+  const parcel = await AdminServices.updateParcel(parcelId, payload);
 
   sendResponse(res, {
     success: true,
@@ -107,10 +102,9 @@ const updateParcel = catchAsync(async (req: Request, res: Response) => {
 const ApproveParcel = catchAsync(async (req: Request, res: Response) => {
   const parcelId = req.params.id;
 
-  const token = req.headers.authorization;
-  const verifiedToken = verifyToken(token as string, envVars.JWT_ACCESS_SECRET) as JwtPayload;
 
-  const parcel = await AdminServices.ApproveParcel(parcelId, verifiedToken);
+
+  const parcel = await AdminServices.ApproveParcel(parcelId);
 
   sendResponse(res, {
     success: true,
@@ -124,10 +118,8 @@ const ApproveParcel = catchAsync(async (req: Request, res: Response) => {
 const CancelParcel = catchAsync(async (req: Request, res: Response) => {
   const parcelId = req.params.id;
 
-  const token = req.headers.authorization;
-  const verifiedToken = verifyToken(token as string, envVars.JWT_ACCESS_SECRET) as JwtPayload;
 
-  const parcel = await AdminServices.CancelParcel(parcelId, verifiedToken);
+  const parcel = await AdminServices.CancelParcel(parcelId);
 
   sendResponse(res, {
     success: true,
@@ -140,10 +132,9 @@ const CancelParcel = catchAsync(async (req: Request, res: Response) => {
 const DeleteParcel = catchAsync(async (req: Request, res: Response) => {
   const parcelId = req.params.id;
 
-  const token = req.headers.authorization;
-  const verifiedToken = verifyToken(token as string, envVars.JWT_ACCESS_SECRET) as JwtPayload;
+ 
 
-  await AdminServices.DeleteParcel(parcelId, verifiedToken);
+  await AdminServices.DeleteParcel(parcelId);
 
   sendResponse(res, {
     success: true,
@@ -156,10 +147,9 @@ const DeleteParcel = catchAsync(async (req: Request, res: Response) => {
 const DeleteUser = catchAsync(async (req: Request, res: Response) => {
   const userId = req.params.id;
 
-  const token = req.headers.authorization;
-  const verifiedToken =  verifyToken(token as string, envVars.JWT_ACCESS_SECRET) as JwtPayload;
 
-  await AdminServices.DeleteUser(userId, verifiedToken);
+
+  await AdminServices.DeleteUser(userId);
 
   sendResponse(res, {
     success: true,

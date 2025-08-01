@@ -9,7 +9,7 @@ import { Parcel, ParcelStatus } from "../parcel/parcel.model";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-const updateUser = async (userId: string, payload: Partial<IUser>, decodedToken: JwtPayload) => {
+const updateUser = async (userId: string, payload: Partial<IUser>) => {
 
     const isUserExist = await User.findById(userId);
 
@@ -18,32 +18,12 @@ const updateUser = async (userId: string, payload: Partial<IUser>, decodedToken:
     }
 
 
-    if (payload.role) {
-        if (decodedToken.role === Role.SENDER || decodedToken.role === Role.RECEIVER) {
-            throw new AppError(httpStatus.FORBIDDEN, "You are not authorized");
-        }
-
-        if (payload.role === Role.SUPER_ADMIN && decodedToken.role === Role.ADMIN) {
-            throw new AppError(httpStatus.FORBIDDEN, "You are not authorized");
-        }
-    }
-
-    if (payload.Status || payload.isDeleted || payload.isVerified) {
-        if (decodedToken.role === Role.SENDER || decodedToken.role === Role.RECEIVER) {
-            throw new AppError(httpStatus.FORBIDDEN, "You are not authorized");
-        }
-    }
-
-    if (payload.password) {
-        payload.password = await bcryptjs.hash(payload.password, envVars.BCRYPT_SALT_ROUND)
-    }
-
     const newUpdatedUser = await User.findByIdAndUpdate(userId, payload, { new: true, runValidators: true })
 
     return newUpdatedUser
 }
 
-const BlockUser = async (userId: string, decodedToken: JwtPayload) => {
+const BlockUser = async (userId: string) => {
     const user = await User.findById(userId);
 
     if (!user) {
@@ -54,9 +34,7 @@ const BlockUser = async (userId: string, decodedToken: JwtPayload) => {
         throw new AppError(httpStatus.BAD_REQUEST, "User is already blocked.");
     }
 
-    if (decodedToken.role === Role.SENDER || decodedToken.role === Role.RECEIVER) {
-        throw new AppError(httpStatus.FORBIDDEN, "You are not authorized");
-    }
+    
 
 
     user.Status = UserStatus.BLOCKED;
@@ -65,7 +43,7 @@ const BlockUser = async (userId: string, decodedToken: JwtPayload) => {
 };
 
 //unblock user function- unblock mean he is active again
-const UnBlockUser = async (userId: string, decodedToken: JwtPayload) => {
+const UnBlockUser = async (userId: string) => {
     const user = await User.findById(userId);
 
     if (!user) {
@@ -74,10 +52,6 @@ const UnBlockUser = async (userId: string, decodedToken: JwtPayload) => {
     console.log("USER status", user.Status);
     if (user.Status !== UserStatus.BLOCKED) {
         throw new AppError(httpStatus.BAD_REQUEST, "User is not blocked.");
-    }
-
-    if (decodedToken.role === Role.SENDER || decodedToken.role === Role.RECEIVER) {
-        throw new AppError(httpStatus.FORBIDDEN, "You are not authorized");
     }
 
 
@@ -125,13 +99,9 @@ function generateTrackingId(): string {
 
 const updateParcel = async (
     parcelId: string,
-    payload: Partial<{ status: ParcelStatus; note?: string; location?: string }>,
-    decodedToken: JwtPayload
+    payload: Partial<{ status: ParcelStatus; note?: string; location?: string }>
 ) => {
-    if (decodedToken.role !== Role.ADMIN && decodedToken.role !== Role.SUPER_ADMIN) {
-        throw new AppError(httpStatus.FORBIDDEN, "Only admins can update parcels");
-    }
-
+    // Find parcel by ID
     const parcel = await Parcel.findById(parcelId);
     if (!parcel) {
         throw new AppError(httpStatus.NOT_FOUND, "Parcel not found");
@@ -139,7 +109,7 @@ const updateParcel = async (
 
     const updateFields: any = { ...payload };
 
-    // ✅ Assign tracking ID and first tracking event if status is APPROVED and no tracking ID yet
+    //  Assign tracking ID and first tracking event if status is APPROVED and no tracking ID yet
     if (payload.status === ParcelStatus.APPROVED && !parcel.trackingId) {
         updateFields.trackingId = generateTrackingId();
         updateFields.trackingEvents = [
@@ -177,12 +147,8 @@ const updateParcel = async (
 };
 
 
-const ApproveParcel = async (parcelId: string, decodedToken: JwtPayload) => {
-    //  Ensure only admins can approve
-    if (decodedToken.role !== Role.ADMIN && decodedToken.role !== Role.SUPER_ADMIN) {
-        throw new AppError(httpStatus.FORBIDDEN, "Only admins can approve parcels");
-    }
-
+const ApproveParcel = async (parcelId: string) => {
+  
     //  Find parcel
     const parcel = await Parcel.findById(parcelId);
     if (!parcel) {
@@ -222,14 +188,8 @@ const ApproveParcel = async (parcelId: string, decodedToken: JwtPayload) => {
 };
 
 
-const CancelParcel = async (parcelId: string, decodedToken: JwtPayload) => {
-  if (
-    decodedToken.role !== Role.ADMIN &&
-    decodedToken.role !== Role.SUPER_ADMIN
-  ) {
-    throw new AppError(httpStatus.FORBIDDEN, "Only admins can cancel parcels");
-  }
-
+const CancelParcel = async (parcelId: string) => {
+  
   const parcel = await Parcel.findById(parcelId);
   if (!parcel) {
     throw new AppError(httpStatus.NOT_FOUND, "Parcel not found");
@@ -256,12 +216,8 @@ const CancelParcel = async (parcelId: string, decodedToken: JwtPayload) => {
 
 
 
-const DeleteParcel = async (parcelId: string, decodedToken: JwtPayload) => {
-  // Only ADMIN and SUPER_ADMIN allowed
-  if (decodedToken.role !== Role.ADMIN && decodedToken.role !== Role.SUPER_ADMIN) {
-    throw new AppError(httpStatus.FORBIDDEN, "Only admins can delete parcels");
-  }
-
+const DeleteParcel = async (parcelId: string) => {
+ 
   const parcel = await Parcel.findById(parcelId);
   if (!parcel) {
     throw new AppError(httpStatus.NOT_FOUND, "Parcel not found");
@@ -274,21 +230,13 @@ const DeleteParcel = async (parcelId: string, decodedToken: JwtPayload) => {
 };
 
 
-const DeleteUser = async (userId: string, decodedToken: JwtPayload) => {
-  // Only ADMIN and SUPER_ADMIN allowed
-  if (decodedToken.role !== Role.ADMIN && decodedToken.role !== Role.SUPER_ADMIN) {
-    throw new AppError(httpStatus.FORBIDDEN, "Only admins can delete users");
-  }
-
+const DeleteUser = async (userId: string) => {
+ 
   const user = await User.findById(userId);
   if (!user) {
     throw new AppError(httpStatus.NOT_FOUND, "User not found");
   }
 
-  // Prevent deleting SUPER_ADMIN by ADMIN
-  if (user.role === Role.SUPER_ADMIN && decodedToken.role === Role.ADMIN) {
-    throw new AppError(httpStatus.FORBIDDEN, "You are not authorized to delete this user");
-  }
 
   await User.findByIdAndDelete(userId);
 
