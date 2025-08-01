@@ -40,7 +40,7 @@ const cancelParcel = (parcelId, userId) => __awaiter(void 0, void 0, void 0, fun
     }
     // Check if the parcel is in a cancellable status
     if (parcel.status !== parcel_model_1.ParcelStatus.PENDING && parcel.status !== parcel_model_1.ParcelStatus.APPROVED) {
-        throw new Error("Parcel can only be cancelled if it is in PENDING or APPROVED status.");
+        throw new Error("Parcel can't be cancelled after dispatch. Current Status " + parcel.status);
     }
     parcel.status = parcel_model_1.ParcelStatus.CANCELLED;
     yield parcel.save();

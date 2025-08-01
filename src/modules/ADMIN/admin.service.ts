@@ -3,7 +3,7 @@ import httpStatus from "http-status-codes";
 import { JwtPayload } from "jsonwebtoken";
 import { envVars } from "../../config/env";
 import AppError from "../../errorHelpers/AppError";
-import { IUser, Role } from "../user/user.model";
+import { IUser, Role, UserStatus } from "../user/user.model";
 import { User } from "../user/user.model";
 import { Parcel, ParcelStatus } from "../parcel/parcel.model";
 
@@ -43,6 +43,49 @@ const updateUser = async (userId: string, payload: Partial<IUser>, decodedToken:
     return newUpdatedUser
 }
 
+const BlockUser = async (userId: string, decodedToken: JwtPayload) => {
+    const user = await User.findById(userId);
+
+    if (!user) {
+        throw new AppError(httpStatus.NOT_FOUND, "User Not Found");
+    }
+    console.log("USER status", user.Status);
+    if (user.Status === UserStatus.BLOCKED) {
+        throw new AppError(httpStatus.BAD_REQUEST, "User is already blocked.");
+    }
+
+    if (decodedToken.role === Role.SENDER || decodedToken.role === Role.RECEIVER) {
+        throw new AppError(httpStatus.FORBIDDEN, "You are not authorized");
+    }
+
+
+    user.Status = UserStatus.BLOCKED;
+    const updatedUser = await user.save();
+    return updatedUser;
+};
+
+//unblock user function- unblock mean he is active again
+const UnBlockUser = async (userId: string, decodedToken: JwtPayload) => {
+    const user = await User.findById(userId);
+
+    if (!user) {
+        throw new AppError(httpStatus.NOT_FOUND, "User Not Found");
+    }
+    console.log("USER status", user.Status);
+    if (user.Status !== UserStatus.BLOCKED) {
+        throw new AppError(httpStatus.BAD_REQUEST, "User is not blocked.");
+    }
+
+    if (decodedToken.role === Role.SENDER || decodedToken.role === Role.RECEIVER) {
+        throw new AppError(httpStatus.FORBIDDEN, "You are not authorized");
+    }
+
+
+    user.Status = UserStatus.ACTIVE;
+    const updatedUser = await user.save();
+    return updatedUser;
+};
+
 
 const getAllUsers = async () => {
     const users = await User.find({});
@@ -70,27 +113,6 @@ const getAllParcels = async () => {
 };
 
 
-
-// const updateParcel = async (
-//   parcelId: string,
-//   payload: Partial<IParcel>,
-//   decodedToken: JwtPayload
-// ) => {
-//   if (decodedToken.role !== Role.ADMIN && decodedToken.role !== Role.SUPER_ADMIN) {
-//     throw new AppError(httpStatus.FORBIDDEN, "Only admins can update parcels");
-//   }
-
-//   const updatedParcel = await Parcel.findByIdAndUpdate(parcelId, payload, {
-//     new: true,
-//     runValidators: true,
-//   });
-
-//   if (!updatedParcel) {
-//     throw new AppError(httpStatus.NOT_FOUND, "Parcel not found");
-//   }
-
-//   return updatedParcel;
-// };
 function generateTrackingId(): string {
     const now = new Date();
     const year = now.getFullYear();
@@ -155,10 +177,99 @@ const updateParcel = async (
 };
 
 
+const ApproveParcel = async (parcelId: string, decodedToken: JwtPayload) => {
+    //  Ensure only admins can approve
+    if (decodedToken.role !== Role.ADMIN && decodedToken.role !== Role.SUPER_ADMIN) {
+        throw new AppError(httpStatus.FORBIDDEN, "Only admins can approve parcels");
+    }
+
+    //  Find parcel
+    const parcel = await Parcel.findById(parcelId);
+    if (!parcel) {
+        throw new AppError(httpStatus.NOT_FOUND, "Parcel not found");
+    }
+
+    //  Don't approve if already approved or beyond
+    if (
+        parcel.status === ParcelStatus.APPROVED ||
+        parcel.status === ParcelStatus.IN_TRANSIT ||
+        parcel.status === ParcelStatus.DELIVERED ||
+        parcel.status === ParcelStatus.RECEIVED
+    ) {
+        throw new AppError(
+            httpStatus.BAD_REQUEST,
+            `Parcel is already ${parcel.status}`
+        );
+    }
+
+    // Set trackingId and push first tracking event
+    const trackingId = parcel.trackingId || generateTrackingId();
+
+    const trackingEvent = {
+        location: parcel.pickupAddress || "Unknown",
+        status: ParcelStatus.APPROVED,
+        timestamp: new Date(),
+        note: "Parcel approved by admin",
+    };
+
+    // Update parcel with status, tracking ID, and first tracking event
+    parcel.status = ParcelStatus.APPROVED;
+    parcel.trackingId = trackingId;
+    parcel.trackingEvents = [...(parcel.trackingEvents || []), trackingEvent];
+
+    const updatedParcel = await parcel.save();
+    return updatedParcel;
+};
+
+
+const CancelParcel = async (parcelId: string, decodedToken: JwtPayload) => {
+  if (
+    decodedToken.role !== Role.ADMIN &&
+    decodedToken.role !== Role.SUPER_ADMIN
+  ) {
+    throw new AppError(httpStatus.FORBIDDEN, "Only admins can cancel parcels");
+  }
+
+  const parcel = await Parcel.findById(parcelId);
+  if (!parcel) {
+    throw new AppError(httpStatus.NOT_FOUND, "Parcel not found");
+  }
+
+  if (
+    parcel.status === ParcelStatus.CANCELLED ||
+    parcel.status === ParcelStatus.DELIVERED ||
+    parcel.status === ParcelStatus.RECEIVED
+  ) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      `Parcel is already ${parcel.status} and cannot be cancelled`
+    );
+  }
+
+    // Optional: add a cancellation tracking event
+//   parcel.trackingEvents = [
+//     ...(parcel.trackingEvents || []),
+//     {
+//       location: "N/A",
+//       status: ParcelStatus.CANCELLED,
+//       timestamp: new Date(),
+//       note: "Parcel cancelled by admin",
+//     },
+//   ];
+//   parcel.status = ParcelStatus.CANCELLED;
+
+
+  const updatedParcel = await parcel.save();
+  return updatedParcel;
+};
 
 export const AdminServices = {
     getAllUsers,
     updateUser,
     getAllParcels,
-    updateParcel
+    updateParcel,
+    BlockUser,
+    UnBlockUser,
+    ApproveParcel,
+    CancelParcel
 }

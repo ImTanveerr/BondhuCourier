@@ -5,15 +5,13 @@ const mongoose_1 = require("mongoose");
 var ParcelStatus;
 (function (ParcelStatus) {
     ParcelStatus["PENDING"] = "PENDING";
+    ParcelStatus["APPROVED"] = "APPROVED";
+    ParcelStatus["DISPATCHED"] = "DISPATCHED";
     ParcelStatus["IN_TRANSIT"] = "IN_TRANSIT";
     ParcelStatus["DELIVERED"] = "DELIVERED";
     ParcelStatus["CANCELLED"] = "CANCELLED";
     ParcelStatus["RECEIVED"] = "RECEIVED";
     ParcelStatus["RETURNED"] = "RETURNED";
-    ParcelStatus["APPROVED"] = "APPROVED";
-    ParcelStatus["DISPATCHED"] = "DISPATCHED";
-    ParcelStatus["REFUNDED"] = "REFUNDED";
-    ParcelStatus["RESCHEDULED"] = "RESCHEDULED";
 })(ParcelStatus || (exports.ParcelStatus = ParcelStatus = {}));
 var ParcelType;
 (function (ParcelType) {

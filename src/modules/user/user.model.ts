@@ -72,5 +72,4 @@ const userSchema = new Schema<IUser>({
 
 // export const User = model<IUser>("user", userSchema)
 
-// export const User = (model.models.User as ReturnType<typeof model<IUser>>) || model<IUser>("User", userSchema);
 export const User = mongoose.models.User || model<IUser>("User", userSchema);

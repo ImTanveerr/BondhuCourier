@@ -50,7 +50,7 @@ const cancelParcel = async (parcelId: string, userId: string | Types.ObjectId) =
 
   // Check if the parcel is in a cancellable status
   if (parcel.status !== ParcelStatus.PENDING && parcel.status !== ParcelStatus.APPROVED) {
-    throw new Error("Parcel can only be cancelled if it is in PENDING or APPROVED status.");
+    throw new Error("Parcel can't be cancelled after dispatch. Current Status " + parcel.status);
   }
 
   parcel.status = ParcelStatus.CANCELLED;

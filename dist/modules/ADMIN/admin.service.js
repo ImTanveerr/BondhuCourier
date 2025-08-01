@@ -45,6 +45,39 @@ const updateUser = (userId, payload, decodedToken) => __awaiter(void 0, void 0, 
     const newUpdatedUser = yield user_model_2.User.findByIdAndUpdate(userId, payload, { new: true, runValidators: true });
     return newUpdatedUser;
 });
+const BlockUser = (userId, decodedToken) => __awaiter(void 0, void 0, void 0, function* () {
+    const user = yield user_model_2.User.findById(userId);
+    if (!user) {
+        throw new AppError_1.default(http_status_codes_1.default.NOT_FOUND, "User Not Found");
+    }
+    console.log("USER status", user.Status);
+    if (user.Status === user_model_1.UserStatus.BLOCKED) {
+        throw new AppError_1.default(http_status_codes_1.default.BAD_REQUEST, "User is already blocked.");
+    }
+    if (decodedToken.role === user_model_1.Role.SENDER || decodedToken.role === user_model_1.Role.RECEIVER) {
+        throw new AppError_1.default(http_status_codes_1.default.FORBIDDEN, "You are not authorized");
+    }
+    user.Status = user_model_1.UserStatus.BLOCKED;
+    const updatedUser = yield user.save();
+    return updatedUser;
+});
+//unblock user function- unblock mean he is active again
+const UnBlockUser = (userId, decodedToken) => __awaiter(void 0, void 0, void 0, function* () {
+    const user = yield user_model_2.User.findById(userId);
+    if (!user) {
+        throw new AppError_1.default(http_status_codes_1.default.NOT_FOUND, "User Not Found");
+    }
+    console.log("USER status", user.Status);
+    if (user.Status !== user_model_1.UserStatus.BLOCKED) {
+        throw new AppError_1.default(http_status_codes_1.default.BAD_REQUEST, "User is not blocked.");
+    }
+    if (decodedToken.role === user_model_1.Role.SENDER || decodedToken.role === user_model_1.Role.RECEIVER) {
+        throw new AppError_1.default(http_status_codes_1.default.FORBIDDEN, "You are not authorized");
+    }
+    user.Status = user_model_1.UserStatus.ACTIVE;
+    const updatedUser = yield user.save();
+    return updatedUser;
+});
 const getAllUsers = () => __awaiter(void 0, void 0, void 0, function* () {
     const users = yield user_model_2.User.find({});
     const totalUsers = yield user_model_2.User.countDocuments();
@@ -65,23 +98,6 @@ const getAllParcels = () => __awaiter(void 0, void 0, void 0, function* () {
         },
     };
 });
-// const updateParcel = async (
-//   parcelId: string,
-//   payload: Partial<IParcel>,
-//   decodedToken: JwtPayload
-// ) => {
-//   if (decodedToken.role !== Role.ADMIN && decodedToken.role !== Role.SUPER_ADMIN) {
-//     throw new AppError(httpStatus.FORBIDDEN, "Only admins can update parcels");
-//   }
-//   const updatedParcel = await Parcel.findByIdAndUpdate(parcelId, payload, {
-//     new: true,
-//     runValidators: true,
-//   });
-//   if (!updatedParcel) {
-//     throw new AppError(httpStatus.NOT_FOUND, "Parcel not found");
-//   }
-//   return updatedParcel;
-// };
 function generateTrackingId() {
     const now = new Date();
     const year = now.getFullYear();
@@ -133,9 +149,73 @@ const updateParcel = (parcelId, payload, decodedToken) => __awaiter(void 0, void
     });
     return updatedParcel;
 });
+const ApproveParcel = (parcelId, decodedToken) => __awaiter(void 0, void 0, void 0, function* () {
+    //  Ensure only admins can approve
+    if (decodedToken.role !== user_model_1.Role.ADMIN && decodedToken.role !== user_model_1.Role.SUPER_ADMIN) {
+        throw new AppError_1.default(http_status_codes_1.default.FORBIDDEN, "Only admins can approve parcels");
+    }
+    //  Find parcel
+    const parcel = yield parcel_model_1.Parcel.findById(parcelId);
+    if (!parcel) {
+        throw new AppError_1.default(http_status_codes_1.default.NOT_FOUND, "Parcel not found");
+    }
+    //  Don't approve if already approved or beyond
+    if (parcel.status === parcel_model_1.ParcelStatus.APPROVED ||
+        parcel.status === parcel_model_1.ParcelStatus.IN_TRANSIT ||
+        parcel.status === parcel_model_1.ParcelStatus.DELIVERED ||
+        parcel.status === parcel_model_1.ParcelStatus.RECEIVED) {
+        throw new AppError_1.default(http_status_codes_1.default.BAD_REQUEST, `Parcel is already ${parcel.status}`);
+    }
+    // Set trackingId and push first tracking event
+    const trackingId = parcel.trackingId || generateTrackingId();
+    const trackingEvent = {
+        location: parcel.pickupAddress || "Unknown",
+        status: parcel_model_1.ParcelStatus.APPROVED,
+        timestamp: new Date(),
+        note: "Parcel approved by admin",
+    };
+    // Update parcel with status, tracking ID, and first tracking event
+    parcel.status = parcel_model_1.ParcelStatus.APPROVED;
+    parcel.trackingId = trackingId;
+    parcel.trackingEvents = [...(parcel.trackingEvents || []), trackingEvent];
+    const updatedParcel = yield parcel.save();
+    return updatedParcel;
+});
+const CancelParcel = (parcelId, decodedToken) => __awaiter(void 0, void 0, void 0, function* () {
+    if (decodedToken.role !== user_model_1.Role.ADMIN &&
+        decodedToken.role !== user_model_1.Role.SUPER_ADMIN) {
+        throw new AppError_1.default(http_status_codes_1.default.FORBIDDEN, "Only admins can cancel parcels");
+    }
+    const parcel = yield parcel_model_1.Parcel.findById(parcelId);
+    if (!parcel) {
+        throw new AppError_1.default(http_status_codes_1.default.NOT_FOUND, "Parcel not found");
+    }
+    if (parcel.status === parcel_model_1.ParcelStatus.CANCELLED ||
+        parcel.status === parcel_model_1.ParcelStatus.DELIVERED ||
+        parcel.status === parcel_model_1.ParcelStatus.RECEIVED) {
+        throw new AppError_1.default(http_status_codes_1.default.BAD_REQUEST, `Parcel is already ${parcel.status} and cannot be cancelled`);
+    }
+    // Optional: add a cancellation tracking event
+    //   parcel.trackingEvents = [
+    //     ...(parcel.trackingEvents || []),
+    //     {
+    //       location: "N/A",
+    //       status: ParcelStatus.CANCELLED,
+    //       timestamp: new Date(),
+    //       note: "Parcel cancelled by admin",
+    //     },
+    //   ];
+    //   parcel.status = ParcelStatus.CANCELLED;
+    const updatedParcel = yield parcel.save();
+    return updatedParcel;
+});
 exports.AdminServices = {
     getAllUsers,
     updateUser,
     getAllParcels,
-    updateParcel
+    updateParcel,
+    BlockUser,
+    UnBlockUser,
+    ApproveParcel,
+    CancelParcel
 };

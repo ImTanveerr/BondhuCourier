@@ -8,7 +8,7 @@ import { envVars } from "../../config/env";
 import { JwtPayload } from "jsonwebtoken";
 import { AdminServices } from "./admin.service";
 
-
+// Update user function
 const updateUser = catchAsync(async (req: Request, res: Response) => {
     const userId = req.params.id;
     const token = req.headers.authorization
@@ -24,6 +24,38 @@ const updateUser = catchAsync(async (req: Request, res: Response) => {
     })
 })
 
+
+
+// Block user function
+const BlockUser = catchAsync(async (req: Request, res: Response) => {
+    const userId = req.params.id;
+    const token = req.headers.authorization
+    const verifiedToken = verifyToken(token as string, envVars.JWT_ACCESS_SECRET) as unknown as JwtPayload
+    const user = await AdminServices.BlockUser(userId, verifiedToken)
+
+    sendResponse(res, {
+        success: true,
+        statusCode: httpStatus.OK,
+        message: "User blocked successfully.",
+        data: user,
+    });
+});
+// UnBlock user function
+const UnBlockUser = catchAsync(async (req: Request, res: Response) => {
+    const userId = req.params.id;
+    const token = req.headers.authorization
+    const verifiedToken = verifyToken(token as string, envVars.JWT_ACCESS_SECRET) as unknown as JwtPayload
+    const user = await AdminServices.UnBlockUser(userId, verifiedToken)
+
+    sendResponse(res, {
+        success: true,
+        statusCode: httpStatus.OK,
+        message: "User blocked successfully.",
+        data: user,
+    });
+});
+
+// Get all users function
 const getAllUsers = catchAsync(async (req: Request, res: Response) => {
     const result = await AdminServices.getAllUsers();
 
@@ -72,11 +104,49 @@ const updateParcel = catchAsync(async (req: Request, res: Response) => {
 });
 
 
+const ApproveParcel = catchAsync(async (req: Request, res: Response) => {
+  const parcelId = req.params.id;
+
+  const token = req.headers.authorization;
+  const verifiedToken = verifyToken(token as string, envVars.JWT_ACCESS_SECRET) as JwtPayload;
+
+  const parcel = await AdminServices.ApproveParcel(parcelId, verifiedToken);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Parcel approved successfully",
+    data: parcel,
+  });
+});
+
+
+const CancelParcel = catchAsync(async (req: Request, res: Response) => {
+  const parcelId = req.params.id;
+
+  const token = req.headers.authorization;
+  const verifiedToken = verifyToken(token as string, envVars.JWT_ACCESS_SECRET) as JwtPayload;
+
+  const parcel = await AdminServices.CancelParcel(parcelId, verifiedToken);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Parcel cancelled successfully",
+    data: parcel,
+  });
+});
+
+
 
 export const AdminControllers = {
     getAllParcels,
     updateParcel,
     getAllUsers,
-    updateUser
+    updateUser,
+    BlockUser,
+    UnBlockUser,
+    ApproveParcel,
+    CancelParcel
 }
 
