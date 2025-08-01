@@ -71,6 +71,14 @@ This API allows:
 
 ## 📊 API Endpoints
 
+### 👤 User & Tracking Endpoints
+
+| Method | Endpoint                          | Description                            |
+|--------|-----------------------------------|----------------------------------------|
+| POST   | `/user/register`                  | Register a new user (sender or receiver) |
+| GET    | `/user/track-parcel/:trackingId`       | Publicly track a parcel by its tracking ID |
+
+
 ### Auth Routes
 | Method | Endpoint           | Description            |
 |--------|--------------------|------------------------|
@@ -103,7 +111,7 @@ The following endpoints allow senders and receivers to view and filter their par
 | GET    | `/parcel/get-parcels`                 | Retrieve all parcels related to the user            |
 | GET    | `/parcel/get-parcels/:id`             | Get details of a specific parcel by its ID          |
 | GET    | `/parcel/get-parcels?searchTerm=`     | Search parcels by Searchable Fields                 |
-| GET    | `/parcel/get-parcels?sort=`           | Sort parcels by fields (e.g., date, weight, status) |
+| GET    | `/parcel/get-parcels?sort=`           | Sort parcels by fields (e.g., description, type)    |
 | GET    | `/parcel/get-parcels?fields=`         | Select specific fields to display in the response   |
 | GET    | `/parcel/get-parcels?page=`           | Paginate results by specifying the page number      |
 | GET    | `/parcel/get-parcels?limit=`          | Limit the number of results per page                |
@@ -124,17 +132,21 @@ GET http://localhost:5000/api/v1/parcel/get-parcels?page=1&limit=2
 GET http://localhost:5000/api/v1/parcel/get-parcels?fields=description
 GET http://localhost:5000/api/v1/parcel/get-parcels?sort=pickupAddress
 GET http://localhost:5000/api/v1/parcel/get-parcels?searchTerm=box
-
+```
 
 
 ### Admin Routes
 | Method | Endpoint                 | Description                    |
 |--------|--------------------------|--------------------------------|
-| GET    | `/admin/users`           | View all users                 |
-| PATCH  | `/admin/users/block/:id` | Block a user                   |
+| GET    | `/admin/all-users`       | View all users                 |
+| PATCH  | `/admin/users/:id`       | Update a user                  |
 | GET    | `/admin/parcels`         | View all parcels               |
-| PATCH  | `/admin/parcels/status/:id`| Update parcel status         |
-| PATCH  | `/admin/parcels/block/:id` | Block a parcel                |
+| PATCH  | `/admin/parcels/:id`     | Update parcel status           |
+| GET    | `/parcel/get-parcels?searchTerm=`     | Search parcels by Searchable Fields                 |
+| GET    | `/parcel/get-parcels?sort=`           | Sort parcels by fields (e.g., description, type)    |
+| GET    | `/parcel/get-parcels?fields=`         | Select specific fields to display in the response   |
+| GET    | `/parcel/get-parcels?page=`           | Paginate results by specifying the page number      |
+| GET    | `/parcel/get-parcels?limit=`          | Limit the number of results per page                |
 
 ---
 
