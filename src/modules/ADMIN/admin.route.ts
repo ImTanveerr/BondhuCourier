@@ -1,5 +1,4 @@
 import { Router } from "express";
-import { UserControllers } from "../user/user.controller";
 import { updateUserZodSchema  } from "../user/user.validation";
 import { validateRequest } from "../../middlewares/ValidateRequest";
 import { Role } from "../user/user.interface";

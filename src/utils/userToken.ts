@@ -15,7 +15,7 @@ export const createUserTokens= (user: Partial<IUser>)=>{
         role: user.role
     }
     const accessToken = generateToken(jwtPayload, envVars.JWT_ACCESS_SECRET, envVars.JWT_ACCESS_EXPIRES)
-    const refreshToken = generateToken(jwtPayload,envVars.JWT_REFRESH_SECCRET,envVars.JWT_REFRESH_EXPIRES)
+    const refreshToken = generateToken(jwtPayload,envVars.JWT_REFRESH_SECRET,envVars.JWT_REFRESH_EXPIRES)
 
     return{
         accessToken, refreshToken
@@ -23,7 +23,7 @@ export const createUserTokens= (user: Partial<IUser>)=>{
 }
 
 export const createNewAccessTokenWithRefreshToken=async (refreshToken: string)=>{
-     const verifiedRefreshToken=verifyToken(refreshToken,envVars.JWT_REFRESH_SECCRET) as JwtPayload
+     const verifiedRefreshToken=verifyToken(refreshToken,envVars.JWT_REFRESH_SECRET) as JwtPayload
     
 
     const isUserExist = await User.findOne({ email:verifiedRefreshToken.email })

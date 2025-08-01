@@ -5,14 +5,13 @@ import { catchAsync } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendResponse";
 import { verifyToken } from "../../utils/jwt";
 import { envVars } from "../../config/env";
-import { ParcelServices } from "../parcel/parcel.service";
 import { ReceiverServices } from "./receiver.service";
 
 
 
 // ========== Get the incoming parcels=========
 
-const IncomingParcels = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+const IncomingParcels = catchAsync(async (req: Request, res: Response) => {
   const token = req.cookies?.accessToken;
 
   if (!token) {
@@ -44,7 +43,7 @@ const IncomingParcels = catchAsync(async (req: Request, res: Response, next: Nex
 
 // ============= Confirm the Delivery ============
 
-const ReceiveParcel= catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+const ReceiveParcel= catchAsync(async (req: Request, res: Response) => {
   const token = req.cookies?.accessToken;
   if (!token) {
     res.status(httpStatus.UNAUTHORIZED).json({ success: false, message: "Unauthorized" });
@@ -109,7 +108,7 @@ const ReturnParcel= catchAsync(async (req: Request, res: Response, next: NextFun
 
 
 // ========== Get the Delivered parcels=========
-const DeliveredParcels = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+const DeliveredParcels = catchAsync(async (req: Request, res: Response) => {
   const token = req.cookies?.accessToken;
 
   if (!token) {

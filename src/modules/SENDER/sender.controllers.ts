@@ -9,7 +9,7 @@ import { SenderServices } from "./sender.services";
 
 
 // =============== Create Parcel ===============
-const createParcel = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+const createParcel = catchAsync(async (req: Request, res: Response) => {
   const token = req.cookies?.accessToken;
 
   if (!token) {
@@ -48,7 +48,7 @@ const createParcel = catchAsync(async (req: Request, res: Response, next: NextFu
 
 
 // =============== Cancel Parcel ===============
-const cancelParcel = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+const cancelParcel = catchAsync(async (req: Request, res: Response) => {
   const token = req.cookies?.accessToken;
   if (!token) {
     res.status(httpStatus.UNAUTHORIZED).json({ success: false, message: "Unauthorized" });

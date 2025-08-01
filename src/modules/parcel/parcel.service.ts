@@ -1,8 +1,7 @@
 
-import { IParcel, Parcel, ParcelStatus } from "../parcel/parcel.model";
+import { Parcel } from "../parcel/parcel.model";
 
 import { Types } from "mongoose";
-const jwt = require("jsonwebtoken");
 
 
 

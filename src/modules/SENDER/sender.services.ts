@@ -3,7 +3,6 @@ import { IParcel, Parcel, ParcelStatus, ParcelType } from "../parcel/parcel.mode
 
 
 import { Types } from "mongoose";
-const jwt = require("jsonwebtoken");
 
 
 

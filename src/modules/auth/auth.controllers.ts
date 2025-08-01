@@ -6,7 +6,7 @@ import { AuthServices } from "./auth.service";
 import { setAuthCookie } from "../../utils/setCookie";
 import { JwtPayload } from "jsonwebtoken";
 import { createUserTokens } from "../../utils/userToken";
-import passport, { use } from "passport";
+import passport from "passport";
 import AppError from "../../errorHelpers/AppError";
 import { envVars } from "../../config/env";
 
@@ -50,7 +50,7 @@ const credentialsLogin = catchAsync(async (req: Request, res: Response, next: Ne
 
 
 
-const getNewAccessToken = catchAsync(async (req: Request, res: Response, _next: NextFunction) => {
+const getNewAccessToken = catchAsync(async (req: Request, res: Response) => {
 
     const refreshToken = req.cookies.refreshToken;
     const tokenInfo = await AuthServices.getNewAccessToken(refreshToken);
@@ -65,7 +65,7 @@ const getNewAccessToken = catchAsync(async (req: Request, res: Response, _next: 
     })
 })
 
-const logout = catchAsync(async (req: Request, res: Response, _next: NextFunction) => {
+const logout = catchAsync(async (req: Request, res: Response) => {
 
 
     res.clearCookie("accessToken", {
@@ -87,7 +87,7 @@ const logout = catchAsync(async (req: Request, res: Response, _next: NextFunctio
     })
 })
 
-const googleCallBackController = catchAsync(async (req: Request, res: Response, _next: NextFunction) => {
+const googleCallBackController = catchAsync(async (req: Request, res: Response) => {
 
     let redirectTo = req.query.state ? req.query.state as string : ""
     if (redirectTo.startsWith("/")) {
@@ -102,7 +102,7 @@ const googleCallBackController = catchAsync(async (req: Request, res: Response, 
 
     res.redirect(`${envVars.FRONTEND_URL}/${redirectTo}`)
 })
-const resetPassword = catchAsync(async (req: Request, res: Response, _next: NextFunction) => {
+const resetPassword = catchAsync(async (req: Request, res: Response) => {
 
 
     const newPassword = req.body.newPassword;

@@ -11,7 +11,7 @@ import { ParcelServices } from "./parcel.service";
 
 // =============== Get Parcel by ID ===============
 
-const getParcelById = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+const getParcelById = catchAsync(async (req: Request, res: Response) => {
   const token = req.cookies?.accessToken;
   if (!token) {
     res.status(httpStatus.UNAUTHORIZED).json({ success: false, message: "Unauthorized" });
@@ -41,7 +41,7 @@ const getParcelById = catchAsync(async (req: Request, res: Response, next: NextF
 });
     
 // =============== Get All Parcels for Sender & RECEIVER===============
-const getMyParcels = catchAsync(async  (req: Request, res: Response, next: NextFunction) => {
+const getMyParcels = catchAsync(async  (req: Request, res: Response) => {
   const token = req.cookies?.accessToken;
   const verifiedToken = verifyToken(token, envVars.JWT_ACCESS_SECRET) as { userId: string };
 

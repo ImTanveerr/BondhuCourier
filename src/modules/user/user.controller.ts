@@ -1,14 +1,12 @@
 
-import { NextFunction, Request, Response } from "express";
+import { Request, Response } from "express";
 import httpStatus from "http-status-codes";
 import { catchAsync } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendResponse";
 import { UserServices } from "./user.service";
-import { Parcel } from "../parcel/parcel.model";
-import AppError from "../../errorHelpers/AppError";
 
 
-const createUser = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+const createUser = catchAsync(async (req: Request, res: Response) => {
     const user = await UserServices.createUser(req.body)
     sendResponse(res, {
         success: true,

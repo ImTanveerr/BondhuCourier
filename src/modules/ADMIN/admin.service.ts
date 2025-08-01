@@ -3,9 +3,9 @@ import httpStatus from "http-status-codes";
 import { JwtPayload } from "jsonwebtoken";
 import { envVars } from "../../config/env";
 import AppError from "../../errorHelpers/AppError";
-import { IAuthProvider, IUser, Role } from "../user/user.interface";
+import { IUser, Role } from "../user/user.interface";
 import { User } from "../user/user.model";
-import { IParcel, Parcel, ParcelStatus } from "../parcel/parcel.model";
+import { Parcel, ParcelStatus } from "../parcel/parcel.model";
 
 
 

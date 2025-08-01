@@ -7,10 +7,9 @@ import { verifyToken } from "../../utils/jwt";
 import { envVars } from "../../config/env";
 import { JwtPayload } from "jsonwebtoken";
 import { AdminServices } from "./admin.service";
-import { Role } from "../user/user.interface";
 
 
-const updateUser = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+const updateUser = catchAsync(async (req: Request, res: Response) => {
     const userId = req.params.id;
     const token = req.headers.authorization
     const verifiedToken = verifyToken(token as string, envVars.JWT_ACCESS_SECRET) as unknown as JwtPayload
@@ -25,7 +24,7 @@ const updateUser = catchAsync(async (req: Request, res: Response, next: NextFunc
     })
 })
 
-const getAllUsers = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+const getAllUsers = catchAsync(async (req: Request, res: Response) => {
     const result = await AdminServices.getAllUsers();
 
 
@@ -41,18 +40,9 @@ const getAllUsers = catchAsync(async (req: Request, res: Response, next: NextFun
 
 
 
-const getAllParcels = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+const getAllParcels = catchAsync(async (req: Request, res: Response) => {
   const token = req.headers.authorization?.split(" ")[1];
-//   if (!token) {
-//     res.status(httpStatus.UNAUTHORIZED).json({ message: "Unauthorized" });
-//     return;
-//   }
 
-//   const verifiedToken = verifyToken(token, envVars.JWT_ACCESS_SECRET) as JwtPayload;
-//   if (verifiedToken.role !== Role.ADMIN && verifiedToken.role !== Role.SUPER_ADMIN) {
-//     res.status(httpStatus.FORBIDDEN).json({ message: "Only admins can view all parcels" });
-//     return;
-//   }
 
   const result = await AdminServices.getAllParcels();
 
@@ -64,7 +54,7 @@ const getAllParcels = catchAsync(async (req: Request, res: Response, next: NextF
     meta: result.meta,
   });
 });
-const updateParcel = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+const updateParcel = catchAsync(async (req: Request, res: Response) => {
   const parcelId = req.params.id;
   
    const token = req.headers.authorization
