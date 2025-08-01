@@ -7,10 +7,13 @@ import { verifyToken } from "../../utils/jwt";
 import { envVars } from "../../config/env";
 import { SenderServices } from "./sender.services";
 import AppError from "../../errorHelpers/AppError";
-import { User ,UserStatus} from "../user/user.model";
+import { Role, User, UserStatus } from "../user/user.model";
+import { JwtPayload } from "jsonwebtoken";
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 // =============== Create Parcel ===============
+
 const createParcel = catchAsync(async (req: Request, res: Response) => {
   const token = req.cookies?.accessToken;
 
@@ -22,9 +25,12 @@ const createParcel = catchAsync(async (req: Request, res: Response) => {
     return;
   }
 
-  const verifiedToken = verifyToken(token, envVars.JWT_ACCESS_SECRET) as { userId: string; role: string };
+  const verifiedToken = verifyToken(token, envVars.JWT_ACCESS_SECRET) as {
+    userId: string;
+    role: Role;
+  };
 
-  if (!verifiedToken?.userId) {
+  if (!verifiedToken?.userId || !verifiedToken?.role) {
     res.status(httpStatus.UNAUTHORIZED).json({
       success: false,
       message: "Unauthorized. Invalid token payload.",
@@ -32,7 +38,6 @@ const createParcel = catchAsync(async (req: Request, res: Response) => {
     return;
   }
 
-  // Fetch user from database
   const user = await User.findById(verifiedToken.userId);
   if (!user) {
     res.status(httpStatus.UNAUTHORIZED).json({
@@ -43,7 +48,15 @@ const createParcel = catchAsync(async (req: Request, res: Response) => {
   }
 
   if (user.Status === UserStatus.BANNED) {
-    throw new AppError(httpStatus.FORBIDDEN, "Your account has been banned. Please contact support.");
+    throw new AppError(
+      httpStatus.FORBIDDEN,
+      "Your account has been banned. Please contact support."
+    );
+  }
+
+  // Ensure only senders can create parcels
+  if (verifiedToken.role !== Role.SENDER) {
+    throw new AppError(httpStatus.UNAUTHORIZED, "Only senders can create parcels.");
   }
 
   const parcelData = {
@@ -51,7 +64,7 @@ const createParcel = catchAsync(async (req: Request, res: Response) => {
     senderId: verifiedToken.userId,
   };
 
-  const newParcel = await SenderServices.createParcel(parcelData);
+  const newParcel = await SenderServices.createParcel(parcelData, verifiedToken.role);
 
   sendResponse(res, {
     success: true,
@@ -62,18 +75,20 @@ const createParcel = catchAsync(async (req: Request, res: Response) => {
 });
 
 
-
 // =============== Cancel Parcel ===============
-const cancelParcel = catchAsync(async (req: Request, res: Response) => {
+const CancelParcel = catchAsync(async (req: Request, res: Response) => {
   const token = req.cookies?.accessToken;
   if (!token) {
     res.status(httpStatus.UNAUTHORIZED).json({ success: false, message: "Unauthorized" });
     return;
   }
 
-  const verifiedToken = verifyToken(token, envVars.JWT_ACCESS_SECRET) as { userId: string };
+  const verifiedToken = verifyToken(token, envVars.JWT_ACCESS_SECRET) as {
+    userId: string;
+    role: Role;
+  };
 
-  if (!verifiedToken?.userId) {
+  if (!verifiedToken?.userId || !verifiedToken?.role) {
     res.status(httpStatus.UNAUTHORIZED).json({ success: false, message: "Unauthorized" });
     return;
   }
@@ -81,12 +96,17 @@ const cancelParcel = catchAsync(async (req: Request, res: Response) => {
   const parcelId = req.params.id;
 
   try {
-    const cancelledParcel = await SenderServices.cancelParcel(parcelId, verifiedToken.userId);
+    const updatedParcel = await SenderServices.cancelParcel(
+      parcelId,
+      verifiedToken.userId,
+      verifiedToken.role
+    );
+
     sendResponse(res, {
       success: true,
       statusCode: httpStatus.OK,
       message: "Parcel cancelled successfully",
-      data: cancelledParcel,
+      data: updatedParcel,
     });
   } catch (error: any) {
     res.status(httpStatus.BAD_REQUEST).json({ success: false, message: error.message });
@@ -96,7 +116,8 @@ const cancelParcel = catchAsync(async (req: Request, res: Response) => {
 
 
 export const SenderControllers = {
-    createParcel,
-    cancelParcel
+  createParcel,
+  CancelParcel
+
 }
 

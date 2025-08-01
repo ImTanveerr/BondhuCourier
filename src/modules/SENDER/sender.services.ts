@@ -1,17 +1,24 @@
 
 import { IParcel, Parcel, ParcelStatus, ParcelType } from "../parcel/parcel.model";
-
-
 import { Types } from "mongoose";
+import { Role } from "../user/user.model";
+import AppError from "../../errorHelpers/AppError";
+import httpStatus from "http-status-codes";
 
 
+const createParcel = async (
+  parcelData: Omit<IParcel, "cost">,
+  userRole: Role
+) => {
+  // Only Sender can access this
+  if (userRole !== Role.SENDER) {
+    throw new AppError(httpStatus.UNAUTHORIZED, "Unauthorized. Only senders can create parcels.");
+  }
 
-const createParcel = async (parcelData: Omit<IParcel, "cost">) => {
   const { weight, parcelType } = parcelData;
 
   let cost = 0;
 
- 
   switch (parcelType) {
     case ParcelType.DOCUMENT:
       cost = 50 + weight * 5;
@@ -28,7 +35,6 @@ const createParcel = async (parcelData: Omit<IParcel, "cost">) => {
       break;
   }
 
-  
   const newParcel = await Parcel.create({
     ...parcelData,
     cost,
@@ -40,17 +46,25 @@ const createParcel = async (parcelData: Omit<IParcel, "cost">) => {
 
 
 
-const cancelParcel = async (parcelId: string, userId: string | Types.ObjectId) => {
-  // Find parcel by id and senderId to ensure ownership
-  const parcel = await Parcel.findOne({ _id: parcelId, senderId: userId });
-
-  if (!parcel) {
-    throw new Error("Parcel not found or you are not authorized to cancel this parcel.");
+const cancelParcel = async (
+  parcelId: string,
+  senderId: string | Types.ObjectId,
+  userRole: Role
+) => {
+  // Only sender can access this
+  if (userRole !== Role.SENDER) {
+    throw new AppError(httpStatus.UNAUTHORIZED, "Unauthorized. Only sender can cancel this parcel.");
   }
 
-  // Check if the parcel is in a cancellable status
-  if (parcel.status !== ParcelStatus.PENDING && parcel.status !== ParcelStatus.APPROVED) {
-    throw new Error("Parcel can't be cancelled after dispatch. Current Status " + parcel.status);
+  // Find parcel by ID and senderId (not receiverId!)
+  const parcel = await Parcel.findOne({ _id: parcelId, senderId });
+
+  if (!parcel) {
+    throw new AppError(httpStatus.NOT_FOUND, "Parcel not found or you are not authorized to cancel this parcel.");
+  }
+
+  if (parcel.status === ParcelStatus.RECEIVED || parcel.status === ParcelStatus.CANCELLED) {
+    throw new AppError(httpStatus.BAD_REQUEST, `This parcel is already ${parcel.status}.`);
   }
 
   parcel.status = ParcelStatus.CANCELLED;
@@ -59,8 +73,10 @@ const cancelParcel = async (parcelId: string, userId: string | Types.ObjectId) =
   return parcel;
 };
 
+
+
+
 export const SenderServices = {
   createParcel,
-  cancelParcel,
-  //refundParcel
+  cancelParcel
 };
