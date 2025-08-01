@@ -26,7 +26,7 @@ export const globalErrorHandler = (err: any, req: Request, res: Response, next: 
     }
     // Object ID error / Cast Error
     else if (err.name === "CastError") {
-        const simplifiedError = handleCastError(err)
+        const simplifiedError = handleCastError()
         statusCode = simplifiedError.statusCode;
         message = simplifiedError.message
     }

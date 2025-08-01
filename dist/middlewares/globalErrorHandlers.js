@@ -25,7 +25,7 @@ const globalErrorHandler = (err, req, res, next) => {
     }
     // Object ID error / Cast Error
     else if (err.name === "CastError") {
-        const simplifiedError = (0, handleCastError_1.handleCastError)(err);
+        const simplifiedError = (0, handleCastError_1.handleCastError)();
         statusCode = simplifiedError.statusCode;
         message = simplifiedError.message;
     }

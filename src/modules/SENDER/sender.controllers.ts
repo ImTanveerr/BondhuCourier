@@ -7,7 +7,7 @@ import { verifyToken } from "../../utils/jwt";
 import { envVars } from "../../config/env";
 import { SenderServices } from "./sender.services";
 import AppError from "../../errorHelpers/AppError";
-import { User ,Role, UserStatus} from "../user/user.model";
+import { User ,UserStatus} from "../user/user.model";
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 // =============== Create Parcel ===============

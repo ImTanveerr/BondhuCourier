@@ -1,4 +1,4 @@
-import { model, Schema } from "mongoose";
+import mongoose, { model, Schema } from "mongoose";
 import { Types } from "mongoose";
 
 export enum Role {
@@ -70,4 +70,7 @@ const userSchema = new Schema<IUser>({
     versionKey: false
 })
 
-export const User = model<IUser>("user", userSchema)
+// export const User = model<IUser>("user", userSchema)
+
+// export const User = (model.models.User as ReturnType<typeof model<IUser>>) || model<IUser>("User", userSchema);
+export const User = mongoose.models.User || model<IUser>("User", userSchema);
