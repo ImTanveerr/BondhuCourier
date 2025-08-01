@@ -2,7 +2,7 @@ import bcryptjs from "bcryptjs";
 import httpStatus from "http-status-codes";
 import { envVars } from "../../config/env";
 import AppError from "../../errorHelpers/AppError";
-import { IAuthProvider, IUser } from "./user.interface";
+import { IAuthProvider, IUser } from "./user.model";
 import { User } from "./user.model";
 import { Parcel } from "../parcel/parcel.model";
 

@@ -3,7 +3,7 @@ import { Strategy as GoogleStrategy, VerifyCallback, Profile } from "passport-go
 import { Strategy as LocalStrategy } from "passport-local";
 import { envVars } from "./env";
 import { User } from "../modules/user/user.model";
-import { Role } from "../modules/user/user.interface";
+import { Role } from "../modules/user/user.model";
 import bcryptjs from "bcryptjs";
 
 

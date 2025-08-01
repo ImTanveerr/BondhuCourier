@@ -15,9 +15,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.createNewAccessTokenWithRefreshToken = exports.createUserTokens = void 0;
 const env_1 = require("../config/env");
 const AppError_1 = __importDefault(require("../errorHelpers/AppError"));
-const user_interface_1 = require("../modules/user/user.interface");
-const jwt_1 = require("./jwt");
 const user_model_1 = require("../modules/user/user.model");
+const jwt_1 = require("./jwt");
+const user_model_2 = require("../modules/user/user.model");
 const http_status_codes_1 = __importDefault(require("http-status-codes"));
 const createUserTokens = (user) => {
     const jwtPayload = {
@@ -34,11 +34,11 @@ const createUserTokens = (user) => {
 exports.createUserTokens = createUserTokens;
 const createNewAccessTokenWithRefreshToken = (refreshToken) => __awaiter(void 0, void 0, void 0, function* () {
     const verifiedRefreshToken = (0, jwt_1.verifyToken)(refreshToken, env_1.envVars.JWT_REFRESH_SECRET);
-    const isUserExist = yield user_model_1.User.findOne({ email: verifiedRefreshToken.email });
+    const isUserExist = yield user_model_2.User.findOne({ email: verifiedRefreshToken.email });
     if (!isUserExist) {
         throw new AppError_1.default(http_status_codes_1.default.BAD_REQUEST, "Email does not exist");
     }
-    if (isUserExist.isActive === user_interface_1.IsActive.BLOCKED || isUserExist.isActive === user_interface_1.IsActive.INACTIVE) {
+    if (isUserExist.Status === user_model_1.UserStatus.BLOCKED || isUserExist.Status === user_model_1.UserStatus.INACTIVE) {
         throw new AppError_1.default(http_status_codes_1.default.BAD_REQUEST, "User is blocked or inactive");
     }
     if (isUserExist.isDeleted) {

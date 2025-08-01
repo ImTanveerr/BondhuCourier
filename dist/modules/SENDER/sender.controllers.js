@@ -19,6 +19,9 @@ const sendResponse_1 = require("../../utils/sendResponse");
 const jwt_1 = require("../../utils/jwt");
 const env_1 = require("../../config/env");
 const sender_services_1 = require("./sender.services");
+const AppError_1 = __importDefault(require("../../errorHelpers/AppError"));
+const user_model_1 = require("../user/user.model");
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // =============== Create Parcel ===============
 const createParcel = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
@@ -37,6 +40,18 @@ const createParcel = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0
             message: "Unauthorized. Invalid token payload.",
         });
         return;
+    }
+    // Fetch user from database
+    const user = yield user_model_1.User.findById(verifiedToken.userId);
+    if (!user) {
+        res.status(http_status_codes_1.default.UNAUTHORIZED).json({
+            success: false,
+            message: "Unauthorized. User not found.",
+        });
+        return;
+    }
+    if (user.Status === user_model_1.UserStatus.BANNED) {
+        throw new AppError_1.default(http_status_codes_1.default.FORBIDDEN, "Your account has been banned. Please contact support.");
     }
     const parcelData = Object.assign(Object.assign({}, req.body), { senderId: verifiedToken.userId });
     const newParcel = yield sender_services_1.SenderServices.createParcel(parcelData);

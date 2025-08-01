@@ -1,7 +1,7 @@
 import { JwtPayload } from "jsonwebtoken";
 import { envVars } from "../config/env";
 import AppError from "../errorHelpers/AppError";
-import { IsActive, IUser } from "../modules/user/user.interface";
+import { UserStatus, IUser } from "../modules/user/user.model";
 import { generateToken, verifyToken } from "./jwt";
 import { User } from "../modules/user/user.model";
 
@@ -32,7 +32,7 @@ export const createNewAccessTokenWithRefreshToken=async (refreshToken: string)=>
         throw new AppError(httpStatus.BAD_REQUEST, "Email does not exist")
     }
 
-    if (isUserExist.isActive===IsActive.BLOCKED|| isUserExist.isActive===IsActive.INACTIVE) {
+    if (isUserExist.Status===UserStatus.BLOCKED|| isUserExist.Status===UserStatus.INACTIVE) {
         throw new AppError(httpStatus.BAD_REQUEST, "User is blocked or inactive")
     }
     if (isUserExist.isDeleted) {

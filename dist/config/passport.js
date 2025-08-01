@@ -17,8 +17,9 @@ const passport_google_oauth20_1 = require("passport-google-oauth20");
 const passport_local_1 = require("passport-local");
 const env_1 = require("./env");
 const user_model_1 = require("../modules/user/user.model");
-const user_interface_1 = require("../modules/user/user.interface");
+const user_model_2 = require("../modules/user/user.model");
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
+/* eslint-disable @typescript-eslint/no-explicit-any */
 passport_1.default.use(new passport_local_1.Strategy({
     usernameField: "email",
     passwordField: "password"
@@ -60,7 +61,7 @@ passport_1.default.use(new passport_google_oauth20_1.Strategy({
                 email,
                 name: profile.displayName,
                 picture: (_b = profile.photos) === null || _b === void 0 ? void 0 : _b[0].value,
-                role: user_interface_1.Role.SENDER,
+                role: user_model_2.Role.SENDER,
                 isVerified: true,
                 auths: [
                     {

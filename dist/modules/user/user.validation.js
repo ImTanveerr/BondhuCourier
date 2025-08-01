@@ -5,7 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.updateUserZodSchema = exports.createUserZodSchema = void 0;
 const zod_1 = __importDefault(require("zod"));
-const user_interface_1 = require("./user.interface");
+const user_model_1 = require("./user.model");
 exports.createUserZodSchema = zod_1.default.object({
     name: zod_1.default
         .string({ invalid_type_error: "Name must be string" })
@@ -64,10 +64,10 @@ exports.updateUserZodSchema = zod_1.default.object({
         .optional(),
     role: zod_1.default
         // .enum(["ADMIN", "GUIDE", "USER", "SUPER_ADMIN"])
-        .enum(Object.values(user_interface_1.Role))
+        .enum(Object.values(user_model_1.Role))
         .optional(),
     isActive: zod_1.default
-        .enum(Object.values(user_interface_1.IsActive))
+        .enum(Object.values(user_model_1.UserStatus))
         .optional(),
     isDeleted: zod_1.default
         .boolean({ invalid_type_error: "isDeleted must be true or false" })

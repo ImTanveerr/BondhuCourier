@@ -6,6 +6,8 @@ import { sendResponse } from "../../utils/sendResponse";
 import { verifyToken } from "../../utils/jwt";
 import { envVars } from "../../config/env";
 import { SenderServices } from "./sender.services";
+import AppError from "../../errorHelpers/AppError";
+import { User ,Role, UserStatus} from "../user/user.model";
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 // =============== Create Parcel ===============
@@ -28,6 +30,20 @@ const createParcel = catchAsync(async (req: Request, res: Response) => {
       message: "Unauthorized. Invalid token payload.",
     });
     return;
+  }
+
+  // Fetch user from database
+  const user = await User.findById(verifiedToken.userId);
+  if (!user) {
+    res.status(httpStatus.UNAUTHORIZED).json({
+      success: false,
+      message: "Unauthorized. User not found.",
+    });
+    return;
+  }
+
+  if (user.Status === UserStatus.BANNED) {
+    throw new AppError(httpStatus.FORBIDDEN, "Your account has been banned. Please contact support.");
   }
 
   const parcelData = {

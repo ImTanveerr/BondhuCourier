@@ -16,13 +16,13 @@ exports.AuthRoutes = void 0;
 const express_1 = require("express");
 const auth_controllers_1 = require("./auth.controllers");
 const checkAuth_1 = require("../../middlewares/checkAuth");
-const user_interface_1 = require("../user/user.interface");
+const user_model_1 = require("../user/user.model");
 const passport_1 = __importDefault(require("passport"));
 const router = (0, express_1.Router)();
 router.post("/login", auth_controllers_1.AuthControllers.credentialsLogin);
 router.post("/refresh-token", auth_controllers_1.AuthControllers.getNewAccessToken);
 router.post("/logout", auth_controllers_1.AuthControllers.logout);
-router.post("/reset-password", (0, checkAuth_1.checkAuth)(...Object.values(user_interface_1.Role)), auth_controllers_1.AuthControllers.resetPassword);
+router.post("/reset-password", (0, checkAuth_1.checkAuth)(...Object.values(user_model_1.Role)), auth_controllers_1.AuthControllers.resetPassword);
 router.get("/google", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const redirect = req.query.redirect || "/";
     passport_1.default.authenticate("google", { scope: ["profile", "email"], state: redirect })(req, res);

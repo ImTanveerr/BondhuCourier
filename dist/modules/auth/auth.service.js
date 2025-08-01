@@ -19,6 +19,7 @@ const AppError_1 = __importDefault(require("../../errorHelpers/AppError"));
 const user_model_1 = require("../user/user.model");
 const userToken_1 = require("../../utils/userToken");
 const env_1 = require("../../config/env");
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 const getNewAccessToken = (refreshToken) => __awaiter(void 0, void 0, void 0, function* () {
     const newAccessToken = yield (0, userToken_1.createNewAccessTokenWithRefreshToken)(refreshToken);
     return {

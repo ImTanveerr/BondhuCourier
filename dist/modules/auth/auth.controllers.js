@@ -33,6 +33,9 @@ const userToken_1 = require("../../utils/userToken");
 const passport_1 = __importDefault(require("passport"));
 const AppError_1 = __importDefault(require("../../errorHelpers/AppError"));
 const env_1 = require("../../config/env");
+const user_model_1 = require("../user/user.model");
+//import {  IsActive } from "../user/user.interface";
+/* eslint-disable @typescript-eslint/no-explicit-any */
 const credentialsLogin = (0, catchAsync_1.catchAsync)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     //const loginInfo = await AuthServices.credentialsLogin(req.body);
     passport_1.default.authenticate("local", (error, user, info) => __awaiter(void 0, void 0, void 0, function* () {
@@ -41,6 +44,10 @@ const credentialsLogin = (0, catchAsync_1.catchAsync)((req, res, next) => __awai
         }
         if (!user) {
             return next(new AppError_1.default(401, info.message));
+        }
+        console.log(user.Status, user_model_1.UserStatus.BLOCKED);
+        if (user.Status === user_model_1.UserStatus.BLOCKED) {
+            return next(new AppError_1.default(403, "Your account has been blocked. Please contact support."));
         }
         const userTokens = yield (0, userToken_1.createUserTokens)(user);
         const _a = user.toObject(), { password: pass } = _a, rest = __rest(_a, ["password"]);

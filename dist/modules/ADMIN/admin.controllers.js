@@ -43,8 +43,7 @@ const getAllUsers = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0,
     });
 }));
 const getAllParcels = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a;
-    const token = (_a = req.headers.authorization) === null || _a === void 0 ? void 0 : _a.split(" ")[1];
+    // const token = req.headers.authorization?.split(" ")[1];
     const result = yield admin_service_1.AdminServices.getAllParcels();
     (0, sendResponse_1.sendResponse)(res, {
         success: true,

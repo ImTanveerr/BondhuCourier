@@ -9,26 +9,34 @@ import { createUserTokens } from "../../utils/userToken";
 import passport from "passport";
 import AppError from "../../errorHelpers/AppError";
 import { envVars } from "../../config/env";
+import { UserStatus } from "../user/user.model";
+//import {  IsActive } from "../user/user.interface";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const credentialsLogin = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
 
     //const loginInfo = await AuthServices.credentialsLogin(req.body);
 
-    passport.authenticate("local", async (error: any,user:any,info:any) => {
+    passport.authenticate("local", async (error: any, user: any, info: any) => {
 
-        if(error){
+        if (error) {
             return next(error)
         }
         if (!user) {
             return next(new AppError(401, info.message))
         }
 
+        console.log(user.Status, UserStatus.BLOCKED)
+        if (user.Status === UserStatus.BLOCKED) {
+
+            return next(new AppError(403, "Your account has been blocked. Please contact support."));
+        }
+
         const userTokens = await createUserTokens(user)
 
         const { password: pass, ...rest } = user.toObject()
 
-    
+
 
         setAuthCookie(res, userTokens)
 
@@ -39,8 +47,8 @@ const credentialsLogin = catchAsync(async (req: Request, res: Response, next: Ne
             message: "User Logged In Successfully",
             data: {
                 accessToken: userTokens.accessToken,
-                refreshToken : userTokens.refreshToken,
-                user : rest
+                refreshToken: userTokens.refreshToken,
+                user: rest
             },
         })
     })(req, res, next)

@@ -1,5 +1,5 @@
 import z from "zod";
-import { IsActive, Role } from "./user.interface";
+import { UserStatus, Role } from "./user.model";
 
 export const createUserZodSchema = z.object({
     name: z
@@ -63,7 +63,7 @@ export const updateUserZodSchema = z.object(
         .enum(Object.values(Role) as [string])
         .optional(),
     isActive: z
-        .enum(Object.values(IsActive) as [string])
+        .enum(Object.values(UserStatus) as [string])
         .optional(),
     isDeleted: z
         .boolean({ invalid_type_error: "isDeleted must be true or false" })

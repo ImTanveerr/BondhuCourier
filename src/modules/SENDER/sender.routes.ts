@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { checkAuth } from "../../middlewares/checkAuth";
 import { SenderControllers } from "./sender.controllers";
-import { Role } from "../user/user.interface";
+import { Role } from "../user/user.model";
 
 const router = Router();
 

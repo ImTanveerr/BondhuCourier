@@ -17,36 +17,37 @@ const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const http_status_codes_1 = __importDefault(require("http-status-codes"));
 const env_1 = require("../../config/env");
 const AppError_1 = __importDefault(require("../../errorHelpers/AppError"));
-const user_interface_1 = require("../user/user.interface");
 const user_model_1 = require("../user/user.model");
+const user_model_2 = require("../user/user.model");
 const parcel_model_1 = require("../parcel/parcel.model");
+/* eslint-disable @typescript-eslint/no-explicit-any */
 const updateUser = (userId, payload, decodedToken) => __awaiter(void 0, void 0, void 0, function* () {
-    const isUserExist = yield user_model_1.User.findById(userId);
+    const isUserExist = yield user_model_2.User.findById(userId);
     if (!isUserExist) {
         throw new AppError_1.default(http_status_codes_1.default.NOT_FOUND, "User Not Found");
     }
     if (payload.role) {
-        if (decodedToken.role === user_interface_1.Role.SENDER || decodedToken.role === user_interface_1.Role.RECEIVER) {
+        if (decodedToken.role === user_model_1.Role.SENDER || decodedToken.role === user_model_1.Role.RECEIVER) {
             throw new AppError_1.default(http_status_codes_1.default.FORBIDDEN, "You are not authorized");
         }
-        if (payload.role === user_interface_1.Role.SUPER_ADMIN && decodedToken.role === user_interface_1.Role.ADMIN) {
+        if (payload.role === user_model_1.Role.SUPER_ADMIN && decodedToken.role === user_model_1.Role.ADMIN) {
             throw new AppError_1.default(http_status_codes_1.default.FORBIDDEN, "You are not authorized");
         }
     }
-    if (payload.isActive || payload.isDeleted || payload.isVerified) {
-        if (decodedToken.role === user_interface_1.Role.SENDER || decodedToken.role === user_interface_1.Role.RECEIVER) {
+    if (payload.Status || payload.isDeleted || payload.isVerified) {
+        if (decodedToken.role === user_model_1.Role.SENDER || decodedToken.role === user_model_1.Role.RECEIVER) {
             throw new AppError_1.default(http_status_codes_1.default.FORBIDDEN, "You are not authorized");
         }
     }
     if (payload.password) {
         payload.password = yield bcryptjs_1.default.hash(payload.password, env_1.envVars.BCRYPT_SALT_ROUND);
     }
-    const newUpdatedUser = yield user_model_1.User.findByIdAndUpdate(userId, payload, { new: true, runValidators: true });
+    const newUpdatedUser = yield user_model_2.User.findByIdAndUpdate(userId, payload, { new: true, runValidators: true });
     return newUpdatedUser;
 });
 const getAllUsers = () => __awaiter(void 0, void 0, void 0, function* () {
-    const users = yield user_model_1.User.find({});
-    const totalUsers = yield user_model_1.User.countDocuments();
+    const users = yield user_model_2.User.find({});
+    const totalUsers = yield user_model_2.User.countDocuments();
     return {
         data: users,
         meta: {
@@ -91,7 +92,7 @@ function generateTrackingId() {
     return `TRK-${datePart}-${randomPart}`;
 }
 const updateParcel = (parcelId, payload, decodedToken) => __awaiter(void 0, void 0, void 0, function* () {
-    if (decodedToken.role !== user_interface_1.Role.ADMIN && decodedToken.role !== user_interface_1.Role.SUPER_ADMIN) {
+    if (decodedToken.role !== user_model_1.Role.ADMIN && decodedToken.role !== user_model_1.Role.SUPER_ADMIN) {
         throw new AppError_1.default(http_status_codes_1.default.FORBIDDEN, "Only admins can update parcels");
     }
     const parcel = yield parcel_model_1.Parcel.findById(parcelId);

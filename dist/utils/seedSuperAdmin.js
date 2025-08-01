@@ -14,12 +14,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.seedSuperAdmin = void 0;
 const env_1 = require("../config/env");
-const user_interface_1 = require("../modules/user/user.interface");
 const user_model_1 = require("../modules/user/user.model");
+const user_model_2 = require("../modules/user/user.model");
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const seedSuperAdmin = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const isSuperAdminExist = yield user_model_1.User.findOne({ email: env_1.envVars.SUPER_ADMIN_EMAIL });
+        const isSuperAdminExist = yield user_model_2.User.findOne({ email: env_1.envVars.SUPER_ADMIN_EMAIL });
         if (isSuperAdminExist) {
             console.log("Super Admin Exists");
             return;
@@ -31,13 +31,13 @@ const seedSuperAdmin = () => __awaiter(void 0, void 0, void 0, function* () {
         };
         const payload = {
             name: "Super admin",
-            role: user_interface_1.Role.SUPER_ADMIN,
+            role: user_model_1.Role.SUPER_ADMIN,
             email: env_1.envVars.SUPER_ADMIN_EMAIL,
             password: hashedPassword,
             isVerified: true,
             auths: [authProvider]
         };
-        const superadmin = yield user_model_1.User.create(payload);
+        const superadmin = yield user_model_2.User.create(payload);
         console.log("Super Admin created Successfully");
         console.log(superadmin);
     }

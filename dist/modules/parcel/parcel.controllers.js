@@ -19,6 +19,7 @@ const sendResponse_1 = require("../../utils/sendResponse");
 const jwt_1 = require("../../utils/jwt");
 const env_1 = require("../../config/env");
 const parcel_service_1 = require("./parcel.service");
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // =============== Get Parcel by ID ===============
 const getParcelById = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;

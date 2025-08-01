@@ -17,7 +17,6 @@ const env_1 = require("../config/env");
 const AppError_1 = __importDefault(require("../errorHelpers/AppError"));
 const jwt_1 = require("../utils/jwt");
 const user_model_1 = require("../modules/user/user.model");
-const user_interface_1 = require("../modules/user/user.interface");
 const http_status_codes_1 = __importDefault(require("http-status-codes"));
 const checkAuth = (...authRoles) => (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -30,7 +29,7 @@ const checkAuth = (...authRoles) => (req, res, next) => __awaiter(void 0, void 0
         if (!isUserExist) {
             throw new AppError_1.default(http_status_codes_1.default.BAD_REQUEST, "Email does not exist");
         }
-        if (isUserExist.isActive === user_interface_1.IsActive.BLOCKED || isUserExist.isActive === user_interface_1.IsActive.INACTIVE) {
+        if (isUserExist.Status === user_model_1.UserStatus.BLOCKED || isUserExist.Status === user_model_1.UserStatus.INACTIVE) {
             throw new AppError_1.default(http_status_codes_1.default.BAD_REQUEST, "User is blocked or inactive");
         }
         if (isUserExist.isDeleted) {

@@ -3,7 +3,7 @@ import httpStatus from "http-status-codes";
 import { JwtPayload } from "jsonwebtoken";
 import { envVars } from "../../config/env";
 import AppError from "../../errorHelpers/AppError";
-import { IUser, Role } from "../user/user.interface";
+import { IUser, Role } from "../user/user.model";
 import { User } from "../user/user.model";
 import { Parcel, ParcelStatus } from "../parcel/parcel.model";
 
@@ -28,7 +28,7 @@ const updateUser = async (userId: string, payload: Partial<IUser>, decodedToken:
         }
     }
 
-    if (payload.isActive || payload.isDeleted || payload.isVerified) {
+    if (payload.Status || payload.isDeleted || payload.isVerified) {
         if (decodedToken.role === Role.SENDER || decodedToken.role === Role.RECEIVER) {
             throw new AppError(httpStatus.FORBIDDEN, "You are not authorized");
         }
