@@ -44,7 +44,8 @@ const getAllUsers = catchAsync(async (req: Request, res: Response, next: NextFun
 const getAllParcels = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
   const token = req.headers.authorization?.split(" ")[1];
 
-  const result = await AdminServices.getAllParcels();
+
+  const result = await AdminServices.getAllParcels(req.query);
 
   sendResponse(res, {
     success: true,

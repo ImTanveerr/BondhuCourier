@@ -6,6 +6,8 @@ import AppError from "../../errorHelpers/AppError";
 import { IAuthProvider, IUser, Role } from "../user/user.interface";
 import { User } from "../user/user.model";
 import { IParcel, Parcel, ParcelStatus } from "../parcel/parcel.model";
+import { QueryBuilder } from "../../utils/QueryBuilder";
+import { parcelSearchableFields } from "../parcel/parcel.constant";
 
 
 
@@ -57,40 +59,29 @@ const getAllUsers = async () => {
 
 
 
-const getAllParcels = async () => {
-    const parcels = await Parcel.find().populate("senderId receiverId");
-    const total = await Parcel.countDocuments();
 
-    return {
-        data: parcels,
-        meta: {
-            total,
-        },
-    };
+const getAllParcels = async (filters: Record<string, any>) => {
+
+
+
+  const builder = new QueryBuilder(Parcel.find(), filters);
+
+  const resultQuery = builder
+    .search(parcelSearchableFields)
+    .filter()
+    .sort()
+    .fields()
+    .paginate();
+
+  const [data, meta] = await Promise.all([
+    resultQuery.build(),
+    builder.getMeta(),
+  ]);
+
+  return { data, meta };
 };
 
 
-
-// const updateParcel = async (
-//   parcelId: string,
-//   payload: Partial<IParcel>,
-//   decodedToken: JwtPayload
-// ) => {
-//   if (decodedToken.role !== Role.ADMIN && decodedToken.role !== Role.SUPER_ADMIN) {
-//     throw new AppError(httpStatus.FORBIDDEN, "Only admins can update parcels");
-//   }
-
-//   const updatedParcel = await Parcel.findByIdAndUpdate(parcelId, payload, {
-//     new: true,
-//     runValidators: true,
-//   });
-
-//   if (!updatedParcel) {
-//     throw new AppError(httpStatus.NOT_FOUND, "Parcel not found");
-//   }
-
-//   return updatedParcel;
-// };
 function generateTrackingId(): string {
     const now = new Date();
     const year = now.getFullYear();
