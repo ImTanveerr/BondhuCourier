@@ -10,7 +10,7 @@ This API allows:
 - ✅ **Senders** to create, cancel, and track their parcels
 - ✅ **Receivers** to view incoming parcels and confirm delivery
 - ✅ **Admins** to manage users and parcel statuses
-- ✅ **Embedded status tracking** with full parcel history
+- ✅ **Embedded status tracking** 
 - ✅ **JWT-based authentication** and **role-based authorization**
 
 ---
