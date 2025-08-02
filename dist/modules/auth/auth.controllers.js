@@ -45,7 +45,6 @@ const credentialsLogin = (0, catchAsync_1.catchAsync)((req, res, next) => __awai
         if (!user) {
             return next(new AppError_1.default(401, info.message));
         }
-        console.log(user.Status, user_model_1.UserStatus.BLOCKED);
         if (user.Status === user_model_1.UserStatus.BLOCKED) {
             return next(new AppError_1.default(403, "Your account has been blocked. Please contact support."));
         }
