@@ -105,7 +105,7 @@ function generateTrackingId(): string {
 }
 
 const updateParcel = async (
-parcelId: string, payload: Partial<{ status: ParcelStatus; note?: string; location?: string; }>, verifiedToken: unknown) => {
+parcelId: string, payload: Partial<{ status: ParcelStatus; note?: string; location?: string; }>) => {
     // Find parcel by ID
     const parcel = await Parcel.findById(parcelId);
     if (!parcel) {

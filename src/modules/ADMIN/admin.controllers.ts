@@ -1,5 +1,5 @@
 
-import {  NextFunction, Request, Response } from "express";
+import {  Request, Response } from "express";
 import httpStatus from "http-status-codes";
 import { catchAsync } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendResponse";
@@ -66,8 +66,7 @@ const getAllUsers = catchAsync(async (req: Request, res: Response) => {
 })
 
 
-const getAllParcels = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-  const token = req.headers.authorization?.split(" ")[1];
+const getAllParcels = catchAsync(async (req: Request, res: Response) => {
 
 
   const result = await AdminServices.getAllParcels(req.query);
@@ -87,7 +86,7 @@ const updateParcel = catchAsync(async (req: Request, res: Response) => {
     const verifiedToken = verifyToken(token as string, envVars.JWT_ACCESS_SECRET) as unknown as JwtPayload
     const payload = req.body;
 
-  const parcel = await AdminServices.updateParcel(parcelId, payload, verifiedToken);
+  const parcel = await AdminServices.updateParcel(parcelId, payload);
 
   sendResponse(res, {
     success: true,

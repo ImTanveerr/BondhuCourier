@@ -1,5 +1,5 @@
 import { Query } from "mongoose";
-
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 const EXCLUDE_FIELDS = ["sort", "page", "limit", "fields", "searchTerm"];
 

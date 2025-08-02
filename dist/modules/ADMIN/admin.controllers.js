@@ -64,9 +64,7 @@ const getAllUsers = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0,
         meta: result.meta
     });
 }));
-const getAllParcels = (0, catchAsync_1.catchAsync)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a;
-    const token = (_a = req.headers.authorization) === null || _a === void 0 ? void 0 : _a.split(" ")[1];
+const getAllParcels = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield admin_service_1.AdminServices.getAllParcels(req.query);
     (0, sendResponse_1.sendResponse)(res, {
         success: true,
@@ -81,7 +79,7 @@ const updateParcel = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0
     const token = req.headers.authorization;
     const verifiedToken = (0, jwt_1.verifyToken)(token, env_1.envVars.JWT_ACCESS_SECRET);
     const payload = req.body;
-    const parcel = yield admin_service_1.AdminServices.updateParcel(parcelId, payload, verifiedToken);
+    const parcel = yield admin_service_1.AdminServices.updateParcel(parcelId, payload);
     (0, sendResponse_1.sendResponse)(res, {
         success: true,
         statusCode: http_status_codes_1.default.OK,

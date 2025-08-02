@@ -89,7 +89,7 @@ function generateTrackingId() {
     const randomPart = Math.floor(100000 + Math.random() * 900000); // 6-digit
     return `TRK-${datePart}-${randomPart}`;
 }
-const updateParcel = (parcelId, payload, verifiedToken) => __awaiter(void 0, void 0, void 0, function* () {
+const updateParcel = (parcelId, payload) => __awaiter(void 0, void 0, void 0, function* () {
     // Find parcel by ID
     const parcel = yield parcel_model_1.Parcel.findById(parcelId);
     if (!parcel) {

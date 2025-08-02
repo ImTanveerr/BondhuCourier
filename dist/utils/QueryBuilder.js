@@ -10,6 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.QueryBuilder = void 0;
+/* eslint-disable @typescript-eslint/no-explicit-any */
 const EXCLUDE_FIELDS = ["sort", "page", "limit", "fields", "searchTerm"];
 class QueryBuilder {
     constructor(modelQuery, filters) {
