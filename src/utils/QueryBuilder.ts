@@ -1,72 +1,94 @@
 import { Query } from "mongoose";
-import { excludeField } from "../constants";
 
-export class QueryBuilder<T>{
-    
-    public modelQuery: Query<T[], T>;
-    public readonly query: Record<string, string>
-    constructor(modelQuery: Query<T[],T>,query:Record<string,string> ){
-        this.modelQuery=modelQuery;
-        this.query=query;
+
+const EXCLUDE_FIELDS = ["sort", "page", "limit", "fields", "searchTerm"];
+
+export class QueryBuilder<T> {
+  private modelQuery: Query<T[], T>;
+  private filters: Record<string, any>;
+
+  constructor(modelQuery: Query<T[], T>, filters: Record<string, any>) {
+    this.modelQuery = modelQuery;
+    this.filters = { ...filters };
+  }
+
+  // Apply search on multiple fields using regex
+  search(searchableFields: string[]): this {
+    const searchTerm = this.filters.searchTerm;
+
+    console.log("Search term:", searchTerm);
+    if (searchTerm && searchableFields.length > 0) {
+      const searchQuery = {
+        $or: searchableFields.map((field) => ({
+          [field]: { $regex: searchTerm, $options: "i" },
+        })),
+      };
+      this.modelQuery = this.modelQuery.find(searchQuery);
+    }
+    return this;
+  }
+
+  // Apply filters (excluding meta fields), with safe type coercion
+  filter(): this {
+    const queryObj: Record<string, any> = {};
+
+    for (const key in this.filters) {
+      if (!EXCLUDE_FIELDS.includes(key)) {
+        const value = this.filters[key];
+        // Try to convert numeric strings to numbers
+        const parsed = Number(value);
+        queryObj[key] = !isNaN(parsed) && value.trim() !== "" ? parsed : value;
+      }
     }
 
-    filter(): this{
-        const filter={... this.query}
-        for(const field of excludeField){
-              // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
-            delete filter[field]
-        }
-        this.modelQuery=this.modelQuery.find(filter)
-        return this;
+    this.modelQuery = this.modelQuery.find(queryObj);
+    return this;
+  }
+
+  // Sort the results
+  sort(): this {
+    const sortBy = this.filters.sort || "-createdAt";
+    this.modelQuery = this.modelQuery.sort(sortBy);
+    return this;
+  }
+
+  // Select specific fields
+  fields(): this {
+    if (this.filters.fields) {
+      const fieldList = this.filters.fields.split(",").join(" ");
+      this.modelQuery = this.modelQuery.select(fieldList);
     }
+    return this;
+  }
 
-    search(tourSearchableField: string[]) :this{
-        const searchTerm= this.query.searchTerm||""
-        const searchQuery={
-            $or: tourSearchableField.map(field=>({ [field]:{$regex: searchTerm,$options: "i"}   })        )
-        }
-        this.modelQuery=this.modelQuery.find(searchQuery)
-        return this
-    }
+  // Apply pagination
+  paginate(): this {
+    const page = Math.max(Number(this.filters.page) || 1, 1);
+    const limit = Math.max(Number(this.filters.limit) || 10, 1);
+    const skip = (page - 1) * limit;
 
-    sort(): this{
-        const sort= this.query.sort || "-createdAt";
-        this.modelQuery =this.modelQuery.sort(sort)
-        return this;
-    }
+    this.modelQuery = this.modelQuery.skip(skip).limit(limit);
+    return this;
+  }
 
-    fields(): this{
-        const fields = this.query.fields?.split(",").join(" ")||""
-        this.modelQuery = this.modelQuery.select(fields)
-        return this;
-    }
+  // Build and return the query
+  build() {
+    return this.modelQuery;
+  }
 
-    paginate(): this{
-        const page = Number(this.query.page)||1
-        const limit = Number(this.query.limit)||10
-        const skip= (page -1)*limit
-        
-        this.modelQuery=this.modelQuery.skip(skip).limit(limit)
-        return this;
-    }
+  // Generate meta data like total documents, current page, and total pages
+  async getMeta() {
+    const page = Math.max(Number(this.filters.page) || 1, 1);
+    const limit = Math.max(Number(this.filters.limit) || 10, 1);
 
-     build() {
-        return this.modelQuery
-    }
+    // Note: use unpaginated query for count
+    const total = await this.modelQuery.model.countDocuments(this.modelQuery.getQuery());
 
-    async getMeta(){
-        const totalDocumets =await this.modelQuery.model.countDocuments()
-
-        const page= Number(this.query.page) ||1
-        const limit= Number(this.query.limit) ||10
-
-        const totalPage=Math.ceil(totalDocumets/limit)
-        return {
-            page,
-            limit,
-            total: totalDocumets,
-            totalPage
-        }
-        
-    }
+    return {
+      page,
+      limit,
+      total,
+      totalPage: Math.ceil(total / limit),
+    };
+  }
 }

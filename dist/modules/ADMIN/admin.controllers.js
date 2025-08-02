@@ -17,6 +17,8 @@ const http_status_codes_1 = __importDefault(require("http-status-codes"));
 const catchAsync_1 = require("../../utils/catchAsync");
 const sendResponse_1 = require("../../utils/sendResponse");
 const admin_service_1 = require("./admin.service");
+const jwt_1 = require("../../utils/jwt");
+const env_1 = require("../../config/env");
 // Update user function
 const updateUser = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const userId = req.params.id;
@@ -62,9 +64,10 @@ const getAllUsers = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0,
         meta: result.meta
     });
 }));
-const getAllParcels = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    // const token = req.headers.authorization?.split(" ")[1];
-    const result = yield admin_service_1.AdminServices.getAllParcels();
+const getAllParcels = (0, catchAsync_1.catchAsync)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    const token = (_a = req.headers.authorization) === null || _a === void 0 ? void 0 : _a.split(" ")[1];
+    const result = yield admin_service_1.AdminServices.getAllParcels(req.query);
     (0, sendResponse_1.sendResponse)(res, {
         success: true,
         statusCode: http_status_codes_1.default.OK,
@@ -75,8 +78,10 @@ const getAllParcels = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 
 }));
 const updateParcel = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const parcelId = req.params.id;
+    const token = req.headers.authorization;
+    const verifiedToken = (0, jwt_1.verifyToken)(token, env_1.envVars.JWT_ACCESS_SECRET);
     const payload = req.body;
-    const parcel = yield admin_service_1.AdminServices.updateParcel(parcelId, payload);
+    const parcel = yield admin_service_1.AdminServices.updateParcel(parcelId, payload, verifiedToken);
     (0, sendResponse_1.sendResponse)(res, {
         success: true,
         statusCode: http_status_codes_1.default.OK,

@@ -15,10 +15,9 @@ const createUser = async (payload: Partial<IUser>) => {
         throw new AppError(httpStatus.BAD_REQUEST, "User Already Exist")
     }
 
-    const allowedRoles = ["SENDER", "RECEIVER"];
-  if (!allowedRoles.includes(role || "")) {
-    throw new AppError(httpStatus.FORBIDDEN, "You can only register as a sender or receiver");
-  }
+    if(role== "ADMIN"|| role == "SUPER_ADMIN") {
+        throw new AppError(httpStatus.BAD_REQUEST, "You cannot create an admin user from here")
+    } 
 
     const hashedPassword = await bcryptjs.hash(password as string, Number(envVars.BCRYPT_SALT_ROUND))
 
@@ -29,6 +28,7 @@ const createUser = async (payload: Partial<IUser>) => {
         email,
         password: hashedPassword,
         auths: [authProvider],
+        role : role || "SENDER", 
         ...rest
     })
 

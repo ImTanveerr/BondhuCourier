@@ -29,7 +29,7 @@ app.use("/api/v1", router)
 
 app.get("/", (req: Request, res: Response) => {
     res.status(200).json({
-        message: "Welcome to Parcel Delivery API",
+        message: "Welcome to BondhuCurier Backend",
     })
 })
 

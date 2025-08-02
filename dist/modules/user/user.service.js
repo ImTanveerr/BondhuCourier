@@ -36,13 +36,12 @@ const createUser = (payload) => __awaiter(void 0, void 0, void 0, function* () {
     if (isUserExist) {
         throw new AppError_1.default(http_status_codes_1.default.BAD_REQUEST, "User Already Exist");
     }
-    const allowedRoles = ["SENDER", "RECEIVER"];
-    if (!allowedRoles.includes(role || "")) {
-        throw new AppError_1.default(http_status_codes_1.default.FORBIDDEN, "You can only register as a sender or receiver");
+    if (role == "ADMIN" || role == "SUPER_ADMIN") {
+        throw new AppError_1.default(http_status_codes_1.default.BAD_REQUEST, "You cannot create an admin user from here");
     }
     const hashedPassword = yield bcryptjs_1.default.hash(password, Number(env_1.envVars.BCRYPT_SALT_ROUND));
     const authProvider = { provider: "credentials", providerId: email };
-    const user = yield user_model_1.User.create(Object.assign({ email, password: hashedPassword, auths: [authProvider] }, rest));
+    const user = yield user_model_1.User.create(Object.assign({ email, password: hashedPassword, auths: [authProvider], role: role || "SENDER" }, rest));
     return user;
 });
 const TrackParcel = (trackingId) => __awaiter(void 0, void 0, void 0, function* () {

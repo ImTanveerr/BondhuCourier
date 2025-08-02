@@ -1,9 +1,12 @@
 
-import {  Request, Response } from "express";
+import {  NextFunction, Request, Response } from "express";
 import httpStatus from "http-status-codes";
 import { catchAsync } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendResponse";
 import { AdminServices } from "./admin.service";
+import { verifyToken } from "../../utils/jwt";
+import { JwtPayload } from "jsonwebtoken";
+import { envVars } from "../../config/env";
 
 // Update user function
 const updateUser = catchAsync(async (req: Request, res: Response) => {
@@ -63,13 +66,11 @@ const getAllUsers = catchAsync(async (req: Request, res: Response) => {
 })
 
 
+const getAllParcels = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+  const token = req.headers.authorization?.split(" ")[1];
 
 
-const getAllParcels = catchAsync(async (req: Request, res: Response) => {
- // const token = req.headers.authorization?.split(" ")[1];
-
-
-  const result = await AdminServices.getAllParcels();
+  const result = await AdminServices.getAllParcels(req.query);
 
   sendResponse(res, {
     success: true,
@@ -82,10 +83,11 @@ const getAllParcels = catchAsync(async (req: Request, res: Response) => {
 const updateParcel = catchAsync(async (req: Request, res: Response) => {
   const parcelId = req.params.id;
   
-   
+   const token = req.headers.authorization
+    const verifiedToken = verifyToken(token as string, envVars.JWT_ACCESS_SECRET) as unknown as JwtPayload
     const payload = req.body;
 
-  const parcel = await AdminServices.updateParcel(parcelId, payload);
+  const parcel = await AdminServices.updateParcel(parcelId, payload, verifiedToken);
 
   sendResponse(res, {
     success: true,

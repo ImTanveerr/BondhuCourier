@@ -28,7 +28,7 @@ app.use((0, cors_1.default)());
 app.use("/api/v1", routes_1.router);
 app.get("/", (req, res) => {
     res.status(200).json({
-        message: "Welcome to Parcel Delivery API",
+        message: "Welcome to BondhuCurier Backend",
     });
 });
 app.use(globalErrorHandlers_1.globalErrorHandler);

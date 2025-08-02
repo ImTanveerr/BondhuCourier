@@ -18,6 +18,8 @@ const AppError_1 = __importDefault(require("../../errorHelpers/AppError"));
 const user_model_1 = require("../user/user.model");
 const user_model_2 = require("../user/user.model");
 const parcel_model_1 = require("../parcel/parcel.model");
+const QueryBuilder_1 = require("../../utils/QueryBuilder");
+const parcel_constant_1 = require("../parcel/parcel.constant");
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const updateUser = (userId, payload) => __awaiter(void 0, void 0, void 0, function* () {
     const isUserExist = yield user_model_2.User.findById(userId);
@@ -64,15 +66,19 @@ const getAllUsers = () => __awaiter(void 0, void 0, void 0, function* () {
         }
     };
 });
-const getAllParcels = () => __awaiter(void 0, void 0, void 0, function* () {
-    const parcels = yield parcel_model_1.Parcel.find().populate("senderId receiverId");
-    const total = yield parcel_model_1.Parcel.countDocuments();
-    return {
-        data: parcels,
-        meta: {
-            total,
-        },
-    };
+const getAllParcels = (filters) => __awaiter(void 0, void 0, void 0, function* () {
+    const builder = new QueryBuilder_1.QueryBuilder(parcel_model_1.Parcel.find(), filters);
+    const resultQuery = builder
+        .search(parcel_constant_1.parcelSearchableFields)
+        .filter()
+        .sort()
+        .fields()
+        .paginate();
+    const [data, meta] = yield Promise.all([
+        resultQuery.build(),
+        builder.getMeta(),
+    ]);
+    return { data, meta };
 });
 function generateTrackingId() {
     const now = new Date();
@@ -83,7 +89,7 @@ function generateTrackingId() {
     const randomPart = Math.floor(100000 + Math.random() * 900000); // 6-digit
     return `TRK-${datePart}-${randomPart}`;
 }
-const updateParcel = (parcelId, payload) => __awaiter(void 0, void 0, void 0, function* () {
+const updateParcel = (parcelId, payload, verifiedToken) => __awaiter(void 0, void 0, void 0, function* () {
     // Find parcel by ID
     const parcel = yield parcel_model_1.Parcel.findById(parcelId);
     if (!parcel) {

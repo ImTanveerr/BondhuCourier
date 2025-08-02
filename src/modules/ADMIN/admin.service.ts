@@ -3,7 +3,8 @@ import AppError from "../../errorHelpers/AppError";
 import { IUser, UserStatus } from "../user/user.model";
 import { User } from "../user/user.model";
 import { Parcel, ParcelStatus } from "../parcel/parcel.model";
-
+import { QueryBuilder } from "../../utils/QueryBuilder";
+import { parcelSearchableFields } from "../parcel/parcel.constant";
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 const updateUser = async (userId: string, payload: Partial<IUser>) => {
@@ -71,16 +72,25 @@ const getAllUsers = async () => {
 
 
 
-const getAllParcels = async () => {
-    const parcels = await Parcel.find().populate("senderId receiverId");
-    const total = await Parcel.countDocuments();
+const getAllParcels = async (filters: Record<string, any>) => {
 
-    return {
-        data: parcels,
-        meta: {
-            total,
-        },
-    };
+
+
+  const builder = new QueryBuilder(Parcel.find(), filters);
+
+  const resultQuery = builder
+    .search(parcelSearchableFields)
+    .filter()
+    .sort()
+    .fields()
+    .paginate();
+
+  const [data, meta] = await Promise.all([
+    resultQuery.build(),
+    builder.getMeta(),
+  ]);
+
+  return { data, meta };
 };
 
 
@@ -95,9 +105,7 @@ function generateTrackingId(): string {
 }
 
 const updateParcel = async (
-    parcelId: string,
-    payload: Partial<{ status: ParcelStatus; note?: string; location?: string }>
-) => {
+parcelId: string, payload: Partial<{ status: ParcelStatus; note?: string; location?: string; }>, verifiedToken: unknown) => {
     // Find parcel by ID
     const parcel = await Parcel.findById(parcelId);
     if (!parcel) {
@@ -202,6 +210,7 @@ const CancelParcel = async (parcelId: string) => {
       `Parcel is already ${parcel.status} and cannot be cancelled`
     );
   }
+  
 
   
   parcel.status = ParcelStatus.CANCELLED;
