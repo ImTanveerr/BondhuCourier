@@ -142,13 +142,17 @@ const ApproveParcel = (parcelId) => __awaiter(void 0, void 0, void 0, function* 
         parcel.status === parcel_model_1.ParcelStatus.RECEIVED) {
         throw new AppError_1.default(http_status_codes_1.default.BAD_REQUEST, `Parcel is already ${parcel.status}`);
     }
+    // Set trackingId and push first tracking event
+    const trackingId = parcel.trackingId || generateTrackingId();
     const trackingEvent = {
         location: parcel.pickupAddress || "Unknown",
-        status: parcel_model_1.ParcelStatus.CANCELLED,
+        status: parcel_model_1.ParcelStatus.APPROVED,
         timestamp: new Date(),
-        note: "Parcel cancelled",
+        note: "Parcel approved by admin",
     };
-    parcel.status = parcel_model_1.ParcelStatus.CANCELLED;
+    // Update parcel with status, tracking ID, and first tracking event
+    parcel.status = parcel_model_1.ParcelStatus.APPROVED;
+    parcel.trackingId = trackingId;
     parcel.trackingEvents = [...(parcel.trackingEvents || []), trackingEvent];
     const updatedParcel = yield parcel.save();
     return updatedParcel;
@@ -163,17 +167,15 @@ const CancelParcel = (parcelId) => __awaiter(void 0, void 0, void 0, function* (
         parcel.status === parcel_model_1.ParcelStatus.RECEIVED) {
         throw new AppError_1.default(http_status_codes_1.default.BAD_REQUEST, `Parcel is already ${parcel.status} and cannot be cancelled`);
     }
-    // Create tracking event
     const trackingEvent = {
         location: parcel.pickupAddress || "Unknown",
         status: parcel_model_1.ParcelStatus.CANCELLED,
         timestamp: new Date(),
-        note: "Parcel cancelled by sender/admin",
+        note: "Parcel cancelled by admin",
     };
     // Update parcel status and trackingEvents
     parcel.status = parcel_model_1.ParcelStatus.CANCELLED;
     parcel.trackingEvents = [...(parcel.trackingEvents || []), trackingEvent];
-    parcel.status = parcel_model_1.ParcelStatus.CANCELLED;
     const updatedParcel = yield parcel.save();
     return updatedParcel;
 });
