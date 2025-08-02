@@ -173,20 +173,15 @@ const ApproveParcel = async (parcelId: string) => {
         );
     }
 
-    // Set trackingId and push first tracking event
-    const trackingId = parcel.trackingId || generateTrackingId();
+     const trackingEvent = {
+    location:  parcel.pickupAddress || "Unknown",
+    status: ParcelStatus.CANCELLED,
+    timestamp: new Date(),
+    note: "Parcel cancelled",
+  };
 
-    const trackingEvent = {
-        location: parcel.pickupAddress || "Unknown",
-        status: ParcelStatus.APPROVED,
-        timestamp: new Date(),
-        note: "Parcel approved by admin",
-    };
-
-    // Update parcel with status, tracking ID, and first tracking event
-    parcel.status = ParcelStatus.APPROVED;
-    parcel.trackingId = trackingId;
-    parcel.trackingEvents = [...(parcel.trackingEvents || []), trackingEvent];
+  parcel.status = ParcelStatus.CANCELLED;
+  parcel.trackingEvents = [...(parcel.trackingEvents || []), trackingEvent];
 
     const updatedParcel = await parcel.save();
     return updatedParcel;
@@ -210,6 +205,18 @@ const CancelParcel = async (parcelId: string) => {
       `Parcel is already ${parcel.status} and cannot be cancelled`
     );
   }
+
+    // Create tracking event
+  const trackingEvent = {
+    location: parcel.pickupAddress || "Unknown",
+    status: ParcelStatus.CANCELLED,
+    timestamp: new Date(),
+    note: "Parcel cancelled by sender/admin",
+  };
+
+  // Update parcel status and trackingEvents
+  parcel.status = ParcelStatus.CANCELLED;
+  parcel.trackingEvents = [...(parcel.trackingEvents || []), trackingEvent];
   
 
   
