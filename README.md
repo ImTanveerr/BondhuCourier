@@ -1,5 +1,5 @@
 # 📦 Parcel Delivery API
-A **secure, modular, and role-based backend API** for managing a parcel delivery system inspired by Pathao Courier and Sundarban. Built using **Express.js**, **Mongoose**, and **TypeScript**, this project supports different user roles with controlled access to parcel operations, including tracking, creation, and status updates.
+A **secure, modular, and role-based backend API** for managing a parcel delivery system. Built using **Express.js**, **Mongoose**, and **TypeScript**, this project supports different user roles with controlled access to parcel operations, including tracking, creation, and status updates.
 
 ---
 
@@ -44,8 +44,8 @@ This API allows:
 ### Parcel Fields:
 - `trackingId` (`TRK-YYYYMMDD-xxxxxx`)
 - `senderId`, `receiverId`
-- `type`, `weight`, `deliveryAddress`
-- `fee`, `status`, `isBlocked`
+- `type`, `weight`, `cost`
+- `Address`, `status`, `description`
 - `statusLogs[]`: Array of subdocuments
 
 ### StatusLog Subdocument:
@@ -62,8 +62,7 @@ This API allows:
 - 📌 Only **senders** can create parcels
 - 🚫 Parcels can be **canceled** only before dispatch
 - ✅ **Receivers** can confirm delivery
-- 🔐 **Admins** can update status or block users/parcels
-- ❌ Blocked users can't access the system
+- 🔐 **Admins** can update status of users & parcels
 - 🔁 **Status log** auto-updates with every status change
 
 ---
@@ -127,10 +126,10 @@ The following fields can be used with the `searchTerm` query parameter in `/parc
 
 **Example:**
 ```http
-GET http://localhost:5000/api/v1/parcel/get-parcels?page=1&limit=2
-GET http://localhost:5000/api/v1/parcel/get-parcels?fields=description
-GET http://localhost:5000/api/v1/parcel/get-parcels?sort=pickupAddress
-GET http://localhost:5000/api/v1/parcel/get-parcels?searchTerm=box
+GET https://bondhucurier.vercel.app/api/v1/parcel/get-parcels?page=1&limit=2
+GET https://bondhucurier.vercel.app/api/v1/parcel/get-parcels?fields=description
+GET https://bondhucurier.vercel.app/api/v1/parcel/get-parcels?sort=pickupAddress
+GET https://bondhucurier.vercel.app/api/v1/parcel/get-parcels?searchTerm=box
 ```
 
 
@@ -146,6 +145,12 @@ GET http://localhost:5000/api/v1/parcel/get-parcels?searchTerm=box
 | GET    | `/parcel/get-parcels?fields=`         | Select specific fields to display in the response   |
 | GET    | `/parcel/get-parcels?page=`           | Paginate results by specifying the page number      |
 | GET    | `/parcel/get-parcels?limit=`          | Limit the number of results per page                |
+| POST    | `admin/block-user/:id`               | Block users by ID           |
+| POST    | `admin/unblock-user/:id`             | Unblock users by ID         |
+| POST    | `admin/approve-parcel/:id`           | Approve Parcel by ID        |
+| POST    | `admin/cancel-parcel/:id`            | Cancel Parcel by ID         |
+| DELETE    | `admin/delete-parcel/:id`          | Delete Parcel  by ID        |
+| DELETE    | `admin/delete-user/:id`            | Delete User  by ID          |
 
 ---
 
