@@ -1,5 +1,4 @@
 # 📦 Parcel Delivery API
-
 A **secure, modular, and role-based backend API** for managing a parcel delivery system inspired by Pathao Courier and Sundarban. Built using **Express.js**, **Mongoose**, and **TypeScript**, this project supports different user roles with controlled access to parcel operations, including tracking, creation, and status updates.
 
 ---
