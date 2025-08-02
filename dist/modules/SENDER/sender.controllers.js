@@ -34,14 +34,13 @@ const createParcel = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0
         return;
     }
     const verifiedToken = (0, jwt_1.verifyToken)(token, env_1.envVars.JWT_ACCESS_SECRET);
-    if (!(verifiedToken === null || verifiedToken === void 0 ? void 0 : verifiedToken.userId)) {
+    if (!(verifiedToken === null || verifiedToken === void 0 ? void 0 : verifiedToken.userId) || !(verifiedToken === null || verifiedToken === void 0 ? void 0 : verifiedToken.role)) {
         res.status(http_status_codes_1.default.UNAUTHORIZED).json({
             success: false,
             message: "Unauthorized. Invalid token payload.",
         });
         return;
     }
-    // Fetch user from database
     const user = yield user_model_1.User.findById(verifiedToken.userId);
     if (!user) {
         res.status(http_status_codes_1.default.UNAUTHORIZED).json({
@@ -53,8 +52,12 @@ const createParcel = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0
     if (user.Status === user_model_1.UserStatus.BANNED) {
         throw new AppError_1.default(http_status_codes_1.default.FORBIDDEN, "Your account has been banned. Please contact support.");
     }
+    // Ensure only senders can create parcels
+    if (verifiedToken.role !== user_model_1.Role.SENDER) {
+        throw new AppError_1.default(http_status_codes_1.default.UNAUTHORIZED, "Only senders can create parcels.");
+    }
     const parcelData = Object.assign(Object.assign({}, req.body), { senderId: verifiedToken.userId });
-    const newParcel = yield sender_services_1.SenderServices.createParcel(parcelData);
+    const newParcel = yield sender_services_1.SenderServices.createParcel(parcelData, verifiedToken.role);
     (0, sendResponse_1.sendResponse)(res, {
         success: true,
         statusCode: http_status_codes_1.default.CREATED,
@@ -63,7 +66,7 @@ const createParcel = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0
     });
 }));
 // =============== Cancel Parcel ===============
-const cancelParcel = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const CancelParcel = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     const token = (_a = req.cookies) === null || _a === void 0 ? void 0 : _a.accessToken;
     if (!token) {
@@ -71,18 +74,18 @@ const cancelParcel = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0
         return;
     }
     const verifiedToken = (0, jwt_1.verifyToken)(token, env_1.envVars.JWT_ACCESS_SECRET);
-    if (!(verifiedToken === null || verifiedToken === void 0 ? void 0 : verifiedToken.userId)) {
+    if (!(verifiedToken === null || verifiedToken === void 0 ? void 0 : verifiedToken.userId) || !(verifiedToken === null || verifiedToken === void 0 ? void 0 : verifiedToken.role)) {
         res.status(http_status_codes_1.default.UNAUTHORIZED).json({ success: false, message: "Unauthorized" });
         return;
     }
     const parcelId = req.params.id;
     try {
-        const cancelledParcel = yield sender_services_1.SenderServices.cancelParcel(parcelId, verifiedToken.userId);
+        const updatedParcel = yield sender_services_1.SenderServices.cancelParcel(parcelId, verifiedToken.userId, verifiedToken.role);
         (0, sendResponse_1.sendResponse)(res, {
             success: true,
             statusCode: http_status_codes_1.default.OK,
             message: "Parcel cancelled successfully",
-            data: cancelledParcel,
+            data: updatedParcel,
         });
     }
     catch (error) {
@@ -91,5 +94,5 @@ const cancelParcel = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0
 }));
 exports.SenderControllers = {
     createParcel,
-    cancelParcel
+    CancelParcel
 };

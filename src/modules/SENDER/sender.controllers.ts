@@ -8,7 +8,6 @@ import { envVars } from "../../config/env";
 import { SenderServices } from "./sender.services";
 import AppError from "../../errorHelpers/AppError";
 import { Role, User, UserStatus } from "../user/user.model";
-import { JwtPayload } from "jsonwebtoken";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 

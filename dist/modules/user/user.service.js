@@ -31,10 +31,14 @@ const AppError_1 = __importDefault(require("../../errorHelpers/AppError"));
 const user_model_1 = require("./user.model");
 const parcel_model_1 = require("../parcel/parcel.model");
 const createUser = (payload) => __awaiter(void 0, void 0, void 0, function* () {
-    const { email, password } = payload, rest = __rest(payload, ["email", "password"]);
+    const { email, password, role } = payload, rest = __rest(payload, ["email", "password", "role"]);
     const isUserExist = yield user_model_1.User.findOne({ email });
     if (isUserExist) {
         throw new AppError_1.default(http_status_codes_1.default.BAD_REQUEST, "User Already Exist");
+    }
+    const allowedRoles = ["SENDER", "RECEIVER"];
+    if (!allowedRoles.includes(role || "")) {
+        throw new AppError_1.default(http_status_codes_1.default.FORBIDDEN, "You can only register as a sender or receiver");
     }
     const hashedPassword = yield bcryptjs_1.default.hash(password, Number(env_1.envVars.BCRYPT_SALT_ROUND));
     const authProvider = { provider: "credentials", providerId: email };

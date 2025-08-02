@@ -7,13 +7,18 @@ import { User } from "./user.model";
 import { Parcel } from "../parcel/parcel.model";
 
 const createUser = async (payload: Partial<IUser>) => {
-    const { email, password, ...rest } = payload;
+    const { email, password,role,...rest } = payload;
 
     const isUserExist = await User.findOne({ email })
 
     if (isUserExist) {
         throw new AppError(httpStatus.BAD_REQUEST, "User Already Exist")
     }
+
+    const allowedRoles = ["SENDER", "RECEIVER"];
+  if (!allowedRoles.includes(role || "")) {
+    throw new AppError(httpStatus.FORBIDDEN, "You can only register as a sender or receiver");
+  }
 
     const hashedPassword = await bcryptjs.hash(password as string, Number(envVars.BCRYPT_SALT_ROUND))
 

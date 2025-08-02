@@ -26,7 +26,6 @@ const credentialsLogin = catchAsync(async (req: Request, res: Response, next: Ne
             return next(new AppError(401, info.message))
         }
 
-        console.log(user.Status, UserStatus.BLOCKED)
         if (user.Status === UserStatus.BLOCKED) {
 
             return next(new AppError(403, "Your account has been blocked. Please contact support."));

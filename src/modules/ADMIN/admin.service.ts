@@ -1,9 +1,6 @@
-import bcryptjs from "bcryptjs";
 import httpStatus from "http-status-codes";
-import { JwtPayload } from "jsonwebtoken";
-import { envVars } from "../../config/env";
 import AppError from "../../errorHelpers/AppError";
-import { IUser, Role, UserStatus } from "../user/user.model";
+import { IUser, UserStatus } from "../user/user.model";
 import { User } from "../user/user.model";
 import { Parcel, ParcelStatus } from "../parcel/parcel.model";
 

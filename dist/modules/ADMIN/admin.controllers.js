@@ -16,16 +16,12 @@ exports.AdminControllers = void 0;
 const http_status_codes_1 = __importDefault(require("http-status-codes"));
 const catchAsync_1 = require("../../utils/catchAsync");
 const sendResponse_1 = require("../../utils/sendResponse");
-const jwt_1 = require("../../utils/jwt");
-const env_1 = require("../../config/env");
 const admin_service_1 = require("./admin.service");
 // Update user function
 const updateUser = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const userId = req.params.id;
-    const token = req.headers.authorization;
-    const verifiedToken = (0, jwt_1.verifyToken)(token, env_1.envVars.JWT_ACCESS_SECRET);
     const payload = req.body;
-    const user = yield admin_service_1.AdminServices.updateUser(userId, payload, verifiedToken);
+    const user = yield admin_service_1.AdminServices.updateUser(userId, payload);
     (0, sendResponse_1.sendResponse)(res, {
         success: true,
         statusCode: http_status_codes_1.default.CREATED,
@@ -36,9 +32,7 @@ const updateUser = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0, 
 // Block user function
 const BlockUser = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const userId = req.params.id;
-    const token = req.headers.authorization;
-    const verifiedToken = (0, jwt_1.verifyToken)(token, env_1.envVars.JWT_ACCESS_SECRET);
-    const user = yield admin_service_1.AdminServices.BlockUser(userId, verifiedToken);
+    const user = yield admin_service_1.AdminServices.BlockUser(userId);
     (0, sendResponse_1.sendResponse)(res, {
         success: true,
         statusCode: http_status_codes_1.default.OK,
@@ -49,13 +43,11 @@ const BlockUser = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0, v
 // UnBlock user function
 const UnBlockUser = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const userId = req.params.id;
-    const token = req.headers.authorization;
-    const verifiedToken = (0, jwt_1.verifyToken)(token, env_1.envVars.JWT_ACCESS_SECRET);
-    const user = yield admin_service_1.AdminServices.UnBlockUser(userId, verifiedToken);
+    const user = yield admin_service_1.AdminServices.UnBlockUser(userId);
     (0, sendResponse_1.sendResponse)(res, {
         success: true,
         statusCode: http_status_codes_1.default.OK,
-        message: "User blocked successfully.",
+        message: "User is active again.",
         data: user,
     });
 }));
@@ -83,10 +75,8 @@ const getAllParcels = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 
 }));
 const updateParcel = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const parcelId = req.params.id;
-    const token = req.headers.authorization;
-    const verifiedToken = (0, jwt_1.verifyToken)(token, env_1.envVars.JWT_ACCESS_SECRET);
     const payload = req.body;
-    const parcel = yield admin_service_1.AdminServices.updateParcel(parcelId, payload, verifiedToken);
+    const parcel = yield admin_service_1.AdminServices.updateParcel(parcelId, payload);
     (0, sendResponse_1.sendResponse)(res, {
         success: true,
         statusCode: http_status_codes_1.default.OK,
@@ -96,9 +86,7 @@ const updateParcel = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0
 }));
 const ApproveParcel = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const parcelId = req.params.id;
-    const token = req.headers.authorization;
-    const verifiedToken = (0, jwt_1.verifyToken)(token, env_1.envVars.JWT_ACCESS_SECRET);
-    const parcel = yield admin_service_1.AdminServices.ApproveParcel(parcelId, verifiedToken);
+    const parcel = yield admin_service_1.AdminServices.ApproveParcel(parcelId);
     (0, sendResponse_1.sendResponse)(res, {
         success: true,
         statusCode: http_status_codes_1.default.OK,
@@ -108,14 +96,32 @@ const ApproveParcel = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 
 }));
 const CancelParcel = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const parcelId = req.params.id;
-    const token = req.headers.authorization;
-    const verifiedToken = (0, jwt_1.verifyToken)(token, env_1.envVars.JWT_ACCESS_SECRET);
-    const parcel = yield admin_service_1.AdminServices.CancelParcel(parcelId, verifiedToken);
+    const parcel = yield admin_service_1.AdminServices.CancelParcel(parcelId);
     (0, sendResponse_1.sendResponse)(res, {
         success: true,
         statusCode: http_status_codes_1.default.OK,
         message: "Parcel cancelled successfully",
         data: parcel,
+    });
+}));
+const DeleteParcel = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const parcelId = req.params.id;
+    yield admin_service_1.AdminServices.DeleteParcel(parcelId);
+    (0, sendResponse_1.sendResponse)(res, {
+        success: true,
+        statusCode: http_status_codes_1.default.OK,
+        message: "Parcel deleted successfully",
+        data: null,
+    });
+}));
+const DeleteUser = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const userId = req.params.id;
+    yield admin_service_1.AdminServices.DeleteUser(userId);
+    (0, sendResponse_1.sendResponse)(res, {
+        success: true,
+        statusCode: http_status_codes_1.default.OK,
+        message: "User deleted successfully",
+        data: null
     });
 }));
 exports.AdminControllers = {
@@ -126,5 +132,7 @@ exports.AdminControllers = {
     BlockUser,
     UnBlockUser,
     ApproveParcel,
-    CancelParcel
+    CancelParcel,
+    DeleteParcel,
+    DeleteUser
 };

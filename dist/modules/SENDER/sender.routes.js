@@ -2,10 +2,8 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SenderRoutes = void 0;
 const express_1 = require("express");
-const checkAuth_1 = require("../../middlewares/checkAuth");
 const sender_controllers_1 = require("./sender.controllers");
-const user_model_1 = require("../user/user.model");
 const router = (0, express_1.Router)();
-router.post("/create-parcel", (0, checkAuth_1.checkAuth)(user_model_1.Role.ADMIN, user_model_1.Role.SUPER_ADMIN, user_model_1.Role.SENDER), sender_controllers_1.SenderControllers.createParcel);
-router.post("/Cancel-parcel/:id", (0, checkAuth_1.checkAuth)(user_model_1.Role.ADMIN, user_model_1.Role.SUPER_ADMIN, user_model_1.Role.SENDER), sender_controllers_1.SenderControllers.cancelParcel);
+router.post("/create-parcel", sender_controllers_1.SenderControllers.createParcel);
+router.post("/Cancel-parcel/:id", sender_controllers_1.SenderControllers.CancelParcel);
 exports.SenderRoutes = router;

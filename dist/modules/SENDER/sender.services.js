@@ -8,10 +8,20 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SenderServices = void 0;
 const parcel_model_1 = require("../parcel/parcel.model");
-const createParcel = (parcelData) => __awaiter(void 0, void 0, void 0, function* () {
+const user_model_1 = require("../user/user.model");
+const AppError_1 = __importDefault(require("../../errorHelpers/AppError"));
+const http_status_codes_1 = __importDefault(require("http-status-codes"));
+const createParcel = (parcelData, userRole) => __awaiter(void 0, void 0, void 0, function* () {
+    // Only Sender can access this
+    if (userRole !== user_model_1.Role.SENDER) {
+        throw new AppError_1.default(http_status_codes_1.default.UNAUTHORIZED, "Unauthorized. Only senders can create parcels.");
+    }
     const { weight, parcelType } = parcelData;
     let cost = 0;
     switch (parcelType) {
@@ -32,15 +42,18 @@ const createParcel = (parcelData) => __awaiter(void 0, void 0, void 0, function*
     const newParcel = yield parcel_model_1.Parcel.create(Object.assign(Object.assign({}, parcelData), { cost }));
     return newParcel;
 });
-const cancelParcel = (parcelId, userId) => __awaiter(void 0, void 0, void 0, function* () {
-    // Find parcel by id and senderId to ensure ownership
-    const parcel = yield parcel_model_1.Parcel.findOne({ _id: parcelId, senderId: userId });
-    if (!parcel) {
-        throw new Error("Parcel not found or you are not authorized to cancel this parcel.");
+const cancelParcel = (parcelId, senderId, userRole) => __awaiter(void 0, void 0, void 0, function* () {
+    // Only sender can access this
+    if (userRole !== user_model_1.Role.SENDER) {
+        throw new AppError_1.default(http_status_codes_1.default.UNAUTHORIZED, "Unauthorized. Only sender can cancel this parcel.");
     }
-    // Check if the parcel is in a cancellable status
-    if (parcel.status !== parcel_model_1.ParcelStatus.PENDING && parcel.status !== parcel_model_1.ParcelStatus.APPROVED) {
-        throw new Error("Parcel can't be cancelled after dispatch. Current Status " + parcel.status);
+    // Find parcel by ID and senderId (not receiverId!)
+    const parcel = yield parcel_model_1.Parcel.findOne({ _id: parcelId, senderId });
+    if (!parcel) {
+        throw new AppError_1.default(http_status_codes_1.default.NOT_FOUND, "Parcel not found or you are not authorized to cancel this parcel.");
+    }
+    if (parcel.status === parcel_model_1.ParcelStatus.RECEIVED || parcel.status === parcel_model_1.ParcelStatus.CANCELLED) {
+        throw new AppError_1.default(http_status_codes_1.default.BAD_REQUEST, `This parcel is already ${parcel.status}.`);
     }
     parcel.status = parcel_model_1.ParcelStatus.CANCELLED;
     yield parcel.save();
@@ -48,6 +61,5 @@ const cancelParcel = (parcelId, userId) => __awaiter(void 0, void 0, void 0, fun
 });
 exports.SenderServices = {
     createParcel,
-    cancelParcel,
-    //refundParcel
+    cancelParcel
 };
