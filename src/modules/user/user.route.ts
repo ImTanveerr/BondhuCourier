@@ -7,4 +7,5 @@ router.post("/register", UserControllers.createUser)
 router.get("/track-parcel/:trackingId", UserControllers.TrackParcel); 
 
 
+
 export const UserRoutes = router;

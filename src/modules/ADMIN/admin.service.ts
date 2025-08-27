@@ -193,39 +193,39 @@ const ApproveParcel = async (parcelId: string) => {
 };
 
 
-const CancelParcel = async (parcelId: string) => {
+// const CancelParcel = async (parcelId: string) => {
   
-  const parcel = await Parcel.findById(parcelId);
-  if (!parcel) {
-    throw new AppError(httpStatus.NOT_FOUND, "Parcel not found");
-  }
+//   const parcel = await Parcel.findById(parcelId);
+//   if (!parcel) {
+//     throw new AppError(httpStatus.NOT_FOUND, "Parcel not found");
+//   }
 
-  if (
-    parcel.status === ParcelStatus.CANCELLED ||
-    parcel.status === ParcelStatus.DELIVERED ||
-    parcel.status === ParcelStatus.RECEIVED
-  ) {
-    throw new AppError(
-      httpStatus.BAD_REQUEST,
-      `Parcel is already ${parcel.status} and cannot be cancelled`
-    );
-  }
+//   if (
+//     parcel.status === ParcelStatus.CANCELLED ||
+//     parcel.status === ParcelStatus.DELIVERED ||
+//     parcel.status === ParcelStatus.RECEIVED
+//   ) {
+//     throw new AppError(
+//       httpStatus.BAD_REQUEST,
+//       `Parcel is already ${parcel.status} and cannot be cancelled`
+//     );
+//   }
   
 
-    const trackingEvent = {
-    location:  parcel.pickupAddress || "Unknown",
-    status: ParcelStatus.CANCELLED,
-    timestamp: new Date(),
-    note: "Parcel cancelled by admin",
-  };
+//     const trackingEvent = {
+//     location:  parcel.pickupAddress || "Unknown",
+//     status: ParcelStatus.CANCELLED,
+//     timestamp: new Date(),
+//     note: "Parcel cancelled by admin",
+//   };
 
-  // Update parcel status and trackingEvents
-  parcel.status = ParcelStatus.CANCELLED;
-  parcel.trackingEvents = [...(parcel.trackingEvents || []), trackingEvent];
+//   // Update parcel status and trackingEvents
+//   parcel.status = ParcelStatus.CANCELLED;
+//   parcel.trackingEvents = [...(parcel.trackingEvents || []), trackingEvent];
 
-  const updatedParcel = await parcel.save();
-  return updatedParcel;
-};
+//   const updatedParcel = await parcel.save();
+//   return updatedParcel;
+// };
 
 
 
@@ -265,7 +265,7 @@ export const AdminServices = {
     BlockUser,
     UnBlockUser,
     ApproveParcel,
-    CancelParcel,
+   // CancelParcel,
     DeleteParcel,
     DeleteUser
 }

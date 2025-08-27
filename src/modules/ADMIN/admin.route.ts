@@ -1,9 +1,11 @@
 import { Router } from "express";
 import { updateUserZodSchema  } from "../user/user.validation";
-import { validateRequest } from "../../middlewares/validateRequest";
+
 import { Role } from "../user/user.model";
 import { checkAuth } from "../../middlewares/checkAuth";
-import { AdminControllers } from "./admin.controllers";
+import { validateRequest } from "../../middlewares/ValidateRequest";
+import { AdminControllers } from "../../app/modules/ADMIN/admin.controllers";
+
 
 const router = Router();
 

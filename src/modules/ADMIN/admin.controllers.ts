@@ -1,11 +1,11 @@
 import httpStatus from "http-status-codes";
 import AppError from "../../errorHelpers/AppError";
-import { UserStatus } from "../user/user.model";
+import { IUser, UserStatus } from "../user/user.model";
 import { User } from "../user/user.model";
 import { Parcel, ParcelStatus } from "../parcel/parcel.model";
 import { QueryBuilder } from "../../utils/QueryBuilder";
 import { parcelSearchableFields } from "../parcel/parcel.constant";
-import { IUser } from "../user/user.interface";
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 const updateUser = async (userId: string, payload: Partial<IUser>) => {
@@ -251,9 +251,8 @@ const CancelParcel = async (parcelId: string) => {
         throw new AppError(
             httpStatus.BAD_REQUEST,
             `Parcel is already ${parcel.status} and cannot be cancelled`
-        );
+        )
     }
-
 
     const trackingEvent = {
         location: parcel.pickupAddress || "Unknown",

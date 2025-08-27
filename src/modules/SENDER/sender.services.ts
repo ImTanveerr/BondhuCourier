@@ -5,6 +5,15 @@ import { Role } from "../user/user.model";
 import AppError from "../../errorHelpers/AppError";
 import httpStatus from "http-status-codes";
 
+function generateTrackingId(): string {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  const datePart = `${year}${month}${day}`;
+  const randomPart = Math.floor(100000 + Math.random() * 900000); // 6-digit
+  return `TRK-${datePart}-${randomPart}`;
+}
 
 const createParcel = async (
   parcelData: Omit<IParcel, "cost">,
@@ -67,10 +76,21 @@ const cancelParcel = async (
     throw new AppError(httpStatus.BAD_REQUEST, `This parcel is already ${parcel.status}.`);
   }
 
-  parcel.status = ParcelStatus.CANCELLED;
-  await parcel.save();
+  // const trackingId = parcel.trackingId || generateTrackingId();
 
-  return parcel;
+  const trackingEvent = {
+    location: parcel.pickupAddress || "Unknown",
+    status: ParcelStatus.CANCELLED,
+    timestamp: new Date(),
+    note: "Parcel cancelled by sender",
+  };
+
+  parcel.status = ParcelStatus.CANCELLED;
+  // parcel.trackingId = trackingId;
+  parcel.trackingEvents = [...(parcel.trackingEvents || []), trackingEvent];
+
+  const updatedParcel = await parcel.save();
+  return updatedParcel;
 };
 
 

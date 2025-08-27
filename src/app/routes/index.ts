@@ -5,6 +5,7 @@ import { ParcelRoutes } from "../modules/parcel/parcel.route";
 import { SenderRoutes } from "../modules/SENDER/sender.routes";
 import { AdminRoutes } from "../modules/ADMIN/admin.route";
 import { ReceiverRoutes } from "../modules/RECEIVER/receiver.route";
+import { ContactRoutes } from "../../modules/user/contact.routes";
 
 
 
@@ -35,9 +36,12 @@ const moduleRoutes = [
     {
         path: "/receiver",
         route: ReceiverRoutes
+    },
+    {
+        path: "/contact",   
+        route: ContactRoutes
     }
-   
-    
+      
 
     
 ];
